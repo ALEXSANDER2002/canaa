@@ -14,7 +14,7 @@ futura camada de IA).
 | Framework     | Next.js 15 (App Router) + React 19              |
 | Linguagem     | TypeScript (strict)                             |
 | Estilo        | Tailwind CSS v4 + design system próprio         |
-| Banco de dados| Prisma ORM + SQLite (dev) — troque por Postgres |
+| Banco de dados| Prisma ORM + PostgreSQL no Supabase             |
 | Autenticação  | Auth.js v5 (NextAuth), credenciais + bcrypt     |
 | Validação     | Zod                                             |
 | Mutações      | Server Actions                                  |
@@ -28,10 +28,11 @@ npm install
 
 # 2. Configurar variáveis de ambiente
 cp .env.example .env
+# substitua [YOUR-PASSWORD] pela senha do banco Supabase
 # gere um segredo real: npx auth secret  (ou openssl rand -base64 32)
 
-# 3. Criar o banco e popular com dados de demonstração
-npm run db:push
+# 3. Aplicar as migrations e popular com dados de demonstração
+npm run db:deploy
 npm run db:seed
 
 # 4. Rodar em desenvolvimento
@@ -63,7 +64,8 @@ Acesse http://localhost:3000
 | `npm start`         | Servidor de produção                              |
 | `npm run lint`      | ESLint                                            |
 | `npm run typecheck` | Checagem de tipos (`tsc --noEmit`)                |
-| `npm run db:push`   | Aplica o schema ao banco                          |
+| `npm run db:migrate`| Cria/aplica migrations no desenvolvimento         |
+| `npm run db:deploy` | Aplica migrations existentes no Supabase          |
 | `npm run db:seed`   | Popula dados de demonstração                      |
 | `npm run db:studio` | Abre o Prisma Studio                              |
 | `npm run db:reset`  | Recria o banco e re-semeia                        |
@@ -203,8 +205,9 @@ Toda peça nasce fora do ar e sobe só depois de aprovação manual
 - **Isolamento por usuária** — toda action/query filtra por `userId` da sessão;
   exclusões usam `deleteMany({ where: { id, userId } })` para impedir acesso a
   dados de terceiros.
-- **SQLite sem enums** — valores enumerados ficam em `lib/constants.ts` e são
-  validados por Zod, mantendo a portabilidade para Postgres.
+- **Strings validadas em vez de enums nativos** — valores enumerados ficam em
+  `lib/constants.ts` e são validados por Zod, facilitando mudanças de política
+  pública sem alterar tipos nativos do PostgreSQL.
 
 ## 💬 Assistente (chat com IA)
 
@@ -383,8 +386,8 @@ npm run pitch:pdf
 
 - [x] Conexão com serviços públicos de saúde e campanhas municipais (`/admin`)
 - [x] Relatórios estatísticos anonimizados (indicadores, corte de 20)
-- [ ] **Migração para Postgres.** Pré-requisito de piloto, não melhoria: o
-      SQLite não aguenta o painel administrativo e o app escrevendo juntos.
+- [x] **PostgreSQL no Supabase**, com pooler transacional para a aplicação e
+      pooler de sessão para migrations do Prisma.
 - [ ] **Ligar a camada 3 do SOS** — só com convênio assinado e plantão 24h
       confirmado. Sem isso o botão promete resgate que ninguém vai cumprir.
 - [ ] **Verificar os telefones da rede de apoio.** O campo "verificado por"

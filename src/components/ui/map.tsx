@@ -25,7 +25,9 @@ import { Icon } from "@/components/ui/icon";
 /** Centro de Canaã dos Carajás — enquadramento inicial quando não há pontos. */
 const CENTRO_CANAA: [number, number] = [-49.8797, -6.4988];
 
-const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+const TOKEN =
+  process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ??
+  process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 export interface PontoMapa {
   id: string;
@@ -69,7 +71,7 @@ function AvisoSemToken({ altura }: { altura: number }) {
       <Icon name="pin" className="h-6 w-6 text-muted" />
       <p className="text-sm font-medium text-ink">Mapa ainda não configurado</p>
       <p className="max-w-xs text-xs text-muted">
-        Defina <code className="rounded bg-white px-1 py-0.5">NEXT_PUBLIC_MAPBOX_TOKEN</code> no
+        Defina <code className="rounded bg-white px-1 py-0.5">NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN</code> no
         .env para exibir o mapa das unidades.
       </p>
     </div>

@@ -223,9 +223,9 @@ async function main() {
      serviço espalhado. */
   await db.healthUnit.createMany({
     data: [
-      { nome: `${MARCA} — UBS Vale Verde`, tipo: "ubs", bairro: "Vale Verde", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 17h", servicos: "ginecologia,prenatal,preventivo,vacinacao" },
-      { nome: `${MARCA} — UBS Planalto`, tipo: "ubs", bairro: "Planalto", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 17h", servicos: "ginecologia,prenatal,teste_rapido" },
-      { nome: `${MARCA} — Posto Zona Rural`, tipo: "ubs", bairro: "Zona rural", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "quartas, 8h às 14h", servicos: "ginecologia,vacinacao" },
+      { nome: `${MARCA} — UBS Vale Verde`, tipo: "ubs", bairro: "Vale Verde", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 17h", servicos: "ginecologia,prenatal,preventivo,vacinacao", latitude: -6.488, longitude: -49.872 },
+      { nome: `${MARCA} — UBS Planalto`, tipo: "ubs", bairro: "Planalto", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 17h", servicos: "ginecologia,prenatal,teste_rapido", latitude: -6.511, longitude: -49.892 },
+      { nome: `${MARCA} — Posto Zona Rural`, tipo: "ubs", bairro: "Zona rural", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "quartas, 8h às 14h", servicos: "ginecologia,vacinacao", latitude: -6.478, longitude: -49.902 },
     ],
   });
   console.log("  ✓ 3 unidades de saúde em bairros novos");

@@ -6,6 +6,10 @@ import type { NextAuthConfig } from "next-auth";
  * que precisa do banco e do bcrypt, é adicionado apenas em `src/lib/auth.ts`.
  */
 export const authConfig = {
+  // O app roda atrás do proxy da hospedagem e também precisa aceitar
+  // localhost no piloto. Sem isto o Auth.js recusa o cabeçalho Host com
+  // `UntrustedHost` antes mesmo de validar as credenciais.
+  trustHost: true,
   pages: {
     signIn: "/login",
   },

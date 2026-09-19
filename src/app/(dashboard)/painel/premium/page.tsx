@@ -1,21 +1,61 @@
 import type { Metadata } from "next";
-import { requireUser } from "@/lib/session";
-import { ComingSoon } from "@/components/ui/coming-soon";
+import Link from "next/link";
 
-export const metadata: Metadata = { title: "Premium" };
+import { requireUser } from "@/lib/session";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card, CardTitle } from "@/components/ui/card";
+import { Icon, type IconName } from "@/components/ui/icon";
+
+export const metadata: Metadata = { title: "Recursos do piloto" };
+
+const RECURSOS: {
+  href: string;
+  title: string;
+  description: string;
+  icon: IconName;
+}[] = [
+  {
+    href: "/painel/relatorio",
+    title: "Relatório de saúde",
+    description: "Organize seus registros para levar à consulta.",
+    icon: "book",
+  },
+  {
+    href: "/painel/metas",
+    title: "Insights e conquistas",
+    description: "Acompanhe constância, hábitos e evolução.",
+    icon: "spark",
+  },
+  {
+    href: "/painel/biblioteca",
+    title: "Biblioteca de saúde",
+    description: "Conteúdo confiável para cada fase.",
+    icon: "guide",
+  },
+];
 
 export default async function PremiumPage() {
   await requireUser();
   return (
-    <ComingSoon
-      icon="spark"
-      title="Canaã Delas Premium"
-      description="Recursos avançados para quem quer acompanhar a saúde com ainda mais profundidade."
-      bullets={[
-        "Relatórios personalizados para levar ao médico",
-        "Insights avançados de ciclo e bem-estar",
-        "Conteúdo exclusivo da biblioteca de saúde",
-      ]}
-    />
+    <>
+      <PageHeader
+        title="Recursos do piloto"
+        description="Durante o piloto, todos estes recursos estão liberados sem cobrança."
+      />
+      <div className="grid gap-4 sm:grid-cols-3">
+        {RECURSOS.map((recurso) => (
+          <Link key={recurso.href} href={recurso.href} className="group">
+            <Card className="h-full transition-colors group-hover:border-plum-300">
+              <Icon name={recurso.icon} className="h-6 w-6 text-plum-700" />
+              <CardTitle className="mt-3">{recurso.title}</CardTitle>
+              <p className="mt-1 text-sm text-muted">{recurso.description}</p>
+              <p className="mt-4 text-sm font-semibold text-plum-700">
+                Abrir recurso
+              </p>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </>
   );
 }

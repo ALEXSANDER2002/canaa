@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 
 import { requireUser } from "@/lib/session";
+import { db } from "@/lib/db";
+import {
+  tipoServicoLabel,
+  VALIDADE_VERIFICACAO_DIAS,
+} from "@core/protecao";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +22,16 @@ const HOTLINES = [
 
 export default async function ApoioPage() {
   await requireUser();
+
+  // A mesma regra da API: contato local só aparece enquanto a verificação
+  // humana tiver menos de 90 dias. Se vencer, permanecem os canais nacionais.
+  const limite = new Date(
+    Date.now() - VALIDADE_VERIFICACAO_DIAS * 24 * 60 * 60 * 1000,
+  );
+  const servicosLocais = await db.supportService.findMany({
+    where: { active: true, verifiedAt: { gte: limite } },
+    orderBy: [{ ordem: "asc" }, { name: "asc" }],
+  });
 
   return (
     <div>
@@ -57,6 +72,46 @@ export default async function ApoioPage() {
           </div>
         </div>
       </Card>
+
+      <section className="mt-6">
+        <h2 className="mb-3 font-display text-xl font-semibold text-ink">
+          Atendimento local verificado
+        </h2>
+        {servicosLocais.length === 0 ? (
+          <Card>
+            <p className="text-sm text-muted">
+              Nenhum contato municipal está com a verificação em dia. Use os
+              canais nacionais acima enquanto a equipe atualiza a rede local.
+            </p>
+          </Card>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {servicosLocais.map((servico) => (
+              <Card key={servico.id}>
+                <Badge tone="sage">{tipoServicoLabel(servico.kind)}</Badge>
+                <CardTitle className="mt-2">{servico.name}</CardTitle>
+                {servico.hours && (
+                  <p className="mt-1 text-sm text-muted">{servico.hours}</p>
+                )}
+                {servico.address && (
+                  <p className="mt-1 text-sm text-ink">{servico.address}</p>
+                )}
+                {servico.phone && (
+                  <a
+                    href={`tel:${servico.phone.replace(/\D/g, "")}`}
+                    className="mt-3 inline-flex rounded-full bg-plum-700 px-4 py-2 text-sm font-semibold text-white hover:bg-plum-800"
+                  >
+                    Ligar: {servico.phone}
+                  </a>
+                )}
+                {servico.notes && (
+                  <p className="mt-3 text-xs text-muted">{servico.notes}</p>
+                )}
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* Pobreza menstrual */}
       <Card className="mt-6">

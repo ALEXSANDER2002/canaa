@@ -1,0 +1,606 @@
+// Schema do banco de dados — Canaã Delas AI
+//
+// PostgreSQL, servido pelo Supabase. Em desenvolvimento ele sobe em Docker
+// pela CLI do Supabase (`supabase start`, ver supabase/config.toml); em
+// produção é o Postgres gerenciado do projeto Supabase. Mesmo motor nos dois,
+// de propósito: divergência entre banco de desenvolvimento e de produção só
+// aparece no pior momento possível.
+//
+// Os campos de tipo enumerado continuam sendo `String` validada no app (ver
+// src/lib/constants.ts e os schemas Zod em src/lib/validations.ts) e não
+// `enum` do Postgres. Não é herança do SQLite: acrescentar um valor a um enum
+// do Postgres é migração com lock de tabela, e estes conjuntos — pilares,
+// categorias, tipos de serviço — mudam com a política pública do município,
+// não com o ciclo de release.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Migração e introspecção não podem passar por pooler de transação: o
+  // pooler não sustenta os comandos de DDL longos nem o advisory lock que o
+  // Prisma usa para não deixar duas migrações rodarem juntas. Em produção,
+  // DATABASE_URL aponta para o pooler (6543) e DIRECT_URL para o Postgres
+  // (5432). No Supabase local as duas são a mesma coisa — o pooler está
+  // desligado — mas a forma já é a de produção para não haver surpresa no dia.
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  birthDate    DateTime?
+  goal         String? // "acompanhar" | "engravidar" | "evitar"
+  onboardedAt  DateTime? // null = ainda não fez o onboarding
+  pinHash      String? // PIN opcional de bloqueio do app (bcrypt)
+
+  /// Papel administrativo — ver `packages/core/papeis.ts`.
+  ///
+  /// Uma pessoa tem UM papel, não uma coleção. Não existe tabela de
+  /// associação porque não existe o caso de uso: ninguém aqui é moderadora
+  /// numa organização e parceira noutra. Se um dia existir, a tabela entra;
+  /// até lá, ela só acrescentaria um join a toda checagem de permissão.
+  role           String        @default("usuaria")
+  /// Preenchido para papéis que representam uma instituição.
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  /// Silenciada na comunidade até esta data (decisão de moderação).
+  silencedUntil DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cycles        CycleEntry[]
+  pregnancy     Pregnancy?
+  moods         MoodEntry[]
+  reminders     Reminder[]
+  dailyLogs     DailyLog[]
+  healthMetrics HealthMetric[]
+  pillLogs      PillLog[]
+  selfExams     SelfExamLog[]
+  conversations Conversation[]
+  memories      ChatMemory[]
+  posts         CommunityPost[]
+  replies       CommunityReply[]
+
+  trustedContacts TrustedContact[]
+  auditEntries    AuditLog[]
+  moderated       ModerationAction[]
+  /// Vínculos em que ELA é a pessoa acompanhada.
+  vinculosCriados PartnerLink[]      @relation("Acompanhada")
+  /// Vínculos em que ELE é quem acompanha.
+  vinculosAceitos PartnerLink[]      @relation("Acompanhante")
+
+  @@index([role])
+}
+
+/// Instituição por trás de um papel administrativo — Prefeitura, CREAS,
+/// farmácia parceira. Serve para o painel dizer "você está publicando como
+/// Secretaria de Saúde", e para o `AuditLog` registrar em nome de quem.
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  /// "prefeitura" | "rede_apoio" | "parceiro"
+  kind      String
+  contact   String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  members  User[]
+  partners Partner[]
+
+  @@index([kind, active])
+}
+
+/// Uma conversa com a assistente. Cada conversa tem seu próprio contexto
+/// (histórico de mensagens isolado).
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String   @default("Nova conversa")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages ChatMessage[]
+
+  @@index([userId, updatedAt])
+}
+
+/// Mensagem dentro de uma conversa.
+model ChatMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String // "user" | "assistant"
+  content        String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+/// Fato durável aprendido sobre a usuária — compartilhado entre conversas.
+/// É isso que faz a assistente "lembrar" dela ao longo do tempo.
+model ChatMemory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fact      String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+/// Medidas de saúde ao longo do tempo (peso, pressão, glicemia, temp. basal).
+model HealthMetric {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  type      String // "peso" | "pressao" | "glicemia" | "tbc"
+  value     Float
+  value2    Float? // 2º valor (ex.: pressão diastólica)
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, type, date])
+}
+
+/// Registro diário do anticoncepcional (um por dia).
+model PillLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime // normalizado para o início do dia
+  taken     Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+/// Registro mensal do autoexame das mamas.
+model SelfExamLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+/// Check-in diário — registro físico/energia (o humor fica em MoodEntry).
+model DailyLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime @default(now())
+  energy     Int? // 1..5
+  sleepHours Float? // horas de sono
+  pain       Int? // 1..5 (cólica/dor)
+  symptoms   String? // lista separada por vírgula
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+/// Registro de um ciclo menstrual (data de início/fim, fluxo, sintomas).
+model CycleEntry {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startDate DateTime
+  endDate   DateTime?
+  flow      String? // "leve" | "medio" | "intenso"
+  symptoms  String? // lista separada por vírgula
+  notes     String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, startDate])
+}
+
+/// Acompanhamento da gestação. Uma gestação ativa por usuária.
+model Pregnancy {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastPeriodDate DateTime // DUM — base para calcular semanas e DPP
+  dueDate        DateTime? // data provável do parto (calculada)
+  active         Boolean   @default(true)
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+/// Registro diário de humor / bem-estar emocional.
+model MoodEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  mood      String // "otimo" | "bem" | "neutro" | "ansiosa" | "triste" | "cansada"
+  intensity Int      @default(3) // 1..5
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+/// Relato publicado na comunidade.
+///
+/// Sempre exibido sob um apelido derivado do id da usuária — o nome real
+/// nunca aparece. O `userId` fica guardado apenas para ela poder apagar o
+/// próprio relato e para moderação.
+model CommunityPost {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  String // "ciclo" | "gestacao" | "saude" | "desabafo" | "outro"
+  body      String
+  /// Marcado por denúncia — some do feed até revisão.
+  hidden    Boolean  @default(false)
+  reports   Int      @default(0)
+  createdAt DateTime @default(now())
+
+  replies CommunityReply[]
+
+  @@index([hidden, createdAt])
+}
+
+/// Resposta a um relato.
+model CommunityReply {
+  id        String        @id @default(cuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  body      String
+  hidden    Boolean       @default(false)
+  reports   Int           @default(0)
+  createdAt DateTime      @default(now())
+
+  @@index([postId, createdAt])
+}
+
+/// Lembrete de exame preventivo, consulta ou medicação.
+model Reminder {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  type      String // "exame" | "consulta" | "medicacao" | "outro"
+  dueDate   DateTime
+  done      Boolean  @default(false)
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, dueDate])
+}
+
+/// Ação social divulgada pela Prefeitura — mutirão, campanha, vacinação.
+///
+/// Não pertence a usuária nenhuma: é conteúdo público do município, igual
+/// para todo mundo. Por isso não tem `userId` e é lido sem autenticação.
+model CityAction {
+  id        String    @id @default(cuid())
+  title     String
+  summary   String
+  /// "saude" | "mulher" | "assistencia" | "vacinacao" | "outro"
+  category  String
+  /// Onde acontece, em texto livre — "UBS do Bairro Novo Horizonte".
+  location  String?
+  /// Nulo em ação contínua (um serviço que existe todo dia).
+  startsAt  DateTime?
+  endsAt    DateTime?
+  /// Telefone ou nome do setor responsável.
+  contact   String?
+  url       String?
+  /// Some da lista sem apagar o histórico.
+  active    Boolean   @default(true)
+  /// Sobe no topo da lista — campanha urgente.
+  pinned    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([active, pinned, startsAt])
+}
+
+/// Serviço da rede de apoio, com contato VERIFICADO pela equipe.
+///
+/// Existe separado do `CityAction` por causa do risco: um telefone errado numa
+/// tela de violência é pior do que tela vazia. Nada aqui é inventado pelo app —
+/// se a tabela estiver vazia, a tela mostra só os canais nacionais (180, 190),
+/// que valem em qualquer município do país.
+model SupportService {
+  id      String  @id @default(cuid())
+  name    String
+  /// "violencia" | "saude" | "assistencia" | "juridico"
+  kind    String
+  address String?
+  phone   String?
+  /// "24 horas" ou "seg a sex, 8h às 17h".
+  hours   String?
+  notes   String?
+  active  Boolean @default(true)
+  ordem   Int     @default(0)
+
+  /// Quando alguém ligou para o número e confirmou que atende.
+  ///
+  /// Não é `createdAt` com outro nome: telefone de delegacia e de casa-abrigo
+  /// muda, e ninguém avisa. Passados 90 dias sem reverificação o registro sai
+  /// da tela sozinho (`verificacaoVencida` em `packages/core/protecao.ts`) e
+  /// sobram os canais nacionais, que não ficam desatualizados.
+  verifiedAt DateTime?
+  /// Nome de uma PESSOA, não um cargo. Um telefone errado aqui precisa ter dono.
+  verifiedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([kind, active, ordem])
+}
+
+/**
+ * ══════════════════════════ pilar Proteção ══════════════════════════
+ */
+
+/// Pessoa que recebe o alerta silencioso do botão SOS.
+///
+/// Três por usuária, no máximo (`LIMITE_CONTATOS_CONFIANCA`). Uma lista longa
+/// dilui: se dez pessoas recebem o alerta, cada uma assume que outra vai agir.
+model TrustedContact {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name     String
+  phone    String
+  /// "irmã", "vizinha do 12" — ajuda ela a lembrar quem é na hora.
+  relation String?
+
+  /// "pendente" | "aceito" | "recusado".
+  ///
+  /// O contato precisa aceitar antes de valer. Cadastrar o número de alguém
+  /// que não sabe que foi cadastrado é construir uma rede que não existe.
+  status     String    @default("pendente")
+  acceptedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, status])
+}
+
+/// Acionamento do SOS — para CONTAR, nunca para localizar.
+///
+/// Repare no que não está aqui: `userId`. O painel da Prefeitura precisa saber
+/// que houve 34 acionamentos no bairro X em maio para dimensionar a rede; não
+/// precisa saber de quem, e se o campo existisse alguém acabaria consultando.
+model SosEvent {
+  id        String   @id @default(cuid())
+  /// "ligacao" | "rede" — `patrulha` não existe enquanto não houver plantão.
+  camada    String
+  bairro    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+/**
+ * ─────────────────────────────────────────────────────────────────────
+ * Cofre de provas: NÃO tem modelo aqui, e a ausência é a decisão.
+ * Foto, vídeo e áudio guardados pela usuária ficam cifrados no aparelho, em
+ * pasta privada do app, fora da galeria. O servidor não vê o arquivo, não vê o
+ * hash e não sabe que o cofre existe. Um índice aqui — mesmo só com metadado —
+ * transformaria o banco em prova de que ela registrou algo, que é exatamente
+ * o risco que o cofre existe para evitar.
+ * Implementação no app: `src/protecao/cofre.ts`.
+ * ─────────────────────────────────────────────────────────────────────
+ */
+
+/**
+ * ══════════════════════════ pilar Saúde ══════════════════════════
+ */
+
+/// Unidade de atendimento do município.
+///
+/// Conteúdo público, sem dono, lido sem autenticação — mesma natureza de
+/// `CityAction`. Mantida pela Prefeitura, não escrita à mão no código.
+model HealthUnit {
+  id   String @id @default(cuid())
+  nome String
+  /// "ubs" | "hospital" | "policlinica" | "caps" | "creas" | "laboratorio"
+  tipo String
+
+  endereco String?
+  bairro   String?
+  telefone String?
+  /// "seg a sex, 7h às 17h" — texto livre, porque a realidade não cabe em grade.
+  horario  String?
+
+  /// Lista separada por vírgula com valores de `SERVICOS_UNIDADE`.
+  ///
+  /// Fechada de propósito: em texto livre, "preventivo", "Papanicolau" e
+  /// "citológico" viram três coisas diferentes e a busca por exame quebra.
+  servicos String @default("")
+
+  observacao String?
+  latitude   Float?
+  longitude  Float?
+  ativa      Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([ativa, bairro])
+}
+
+/// Modo acompanhante — o vínculo entre ela e quem acompanha.
+///
+/// O convite parte sempre dela; não existe "pedir acesso". `escopos` guarda
+/// item a item o que foi liberado, e revogar APAGA o vínculo em vez de
+/// arquivá-lo: um histórico de "ele acompanhou de março a julho" não serve
+/// para nada que ela precise e serve para alguma coisa que ela não quer.
+model PartnerLink {
+  id String @id @default(cuid())
+
+  /// Quem é acompanhada. Dona do vínculo.
+  ownerId String
+  owner   User   @relation("Acompanhada", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  /// Quem acompanha. Nulo até alguém usar o código.
+  partnerId String?
+  partner   User?   @relation("Acompanhante", fields: [partnerId], references: [id], onDelete: SetNull)
+
+  /// Seis caracteres ditáveis em voz alta — ver `gerarCodigoConvite`.
+  codigo String @unique
+
+  /// Lista separada por vírgula com valores de `ESCOPOS_ACOMPANHANTE`.
+  /// Nada do pilar Proteção é escopo possível, em nenhuma hipótese.
+  escopos String
+
+  /// "pendente" | "ativo" | "revogado"
+  status String @default("pendente")
+
+  /// Como ele aparece para ela na lista. Não é o nome real dele.
+  apelido String?
+
+  createdAt  DateTime  @default(now())
+  acceptedAt DateTime?
+
+  @@index([ownerId, status])
+  @@index([partnerId, status])
+}
+
+/**
+ * ══════════════════════════ Comunidade ══════════════════════════
+ */
+
+/// Decisão humana sobre um relato denunciado.
+///
+/// A ocultação automática em 3 denúncias continua existindo — ela é a rede de
+/// segurança para o tempo em que ninguém está olhando. Isto aqui é a segunda
+/// metade que faltava: alguém revisa, e a revisão fica registrada.
+model ModerationAction {
+  id String @id @default(cuid())
+
+  /// Um dos dois é preenchido, nunca os dois.
+  postId  String?
+  replyId String?
+
+  /// "restaurar" | "remover" | "silenciar"
+  decisao String
+  motivo  String?
+  nota    String?
+
+  /// Quem decidiu. A moderadora vê o apelido da autora, nunca o nome —
+  /// mas ela própria é identificada, porque decisão de moderação tem dono.
+  moderatorId String
+  moderator   User   @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+  @@index([createdAt])
+}
+
+/**
+ * ══════════════════════════ Parcerias ══════════════════════════
+ */
+
+/// Anunciante — farmácia, laboratório, clínica, ONG.
+model Partner {
+  id   String @id @default(cuid())
+  nome String
+  /// "farmacia" | "laboratorio" | "clinica" | "ong" | "outro"
+  tipo String
+
+  contato String?
+  ativo   Boolean @default(true)
+
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  campanhas Campaign[]
+
+  @@index([ativo])
+}
+
+/// Peça publicitária.
+///
+/// Nasce fora do ar e só sobe depois de aprovação manual (`podePublicar`).
+/// `pilar` nunca é "protecao": a validação recusa antes de gravar, e
+/// `motivoParaNaoPublicar` recusa de novo na hora de exibir.
+///
+/// A segmentação disponível é cidade e bairro, e nada mais. Não existe campo
+/// de segmentação por ciclo, humor, idade gestacional ou sintoma — um campo
+/// desses no schema vira uma opção no painel, e uma opção no painel acaba
+/// sendo usada.
+model Campaign {
+  id        String  @id @default(cuid())
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  titulo String
+  texto  String
+  url    String?
+
+  /// "saude" | "comunidade"
+  pilar String
+
+  cidade String?
+  bairro String?
+
+  /// "rascunho" | "enviada" | "aprovada" | "recusada" | "pausada"
+  status        String  @default("rascunho")
+  motivoRecusa  String?
+  aprovadaPorId String?
+
+  inicioEm DateTime?
+  fimEm    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([status, pilar])
+}
+
+/**
+ * ══════════════════════════ Auditoria ══════════════════════════
+ */
+
+/// Toda escrita administrativa, somente inserção.
+///
+/// O que NÃO entra aqui: qualquer coisa do pilar Proteção do lado da usuária.
+/// Registrar "fulana abriu a rede de apoio" é exatamente o rastro que
+/// `AVISO_RASTRO` promete que não existe. O que entra é o outro lado — quem
+/// cadastrou, editou ou apagou um serviço, uma unidade, uma campanha.
+model AuditLog {
+  id String @id @default(cuid())
+
+  actorId String
+  actor   User   @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  /// "servico" | "unidade" | "acao" | "campanha" | "moderacao" | "papel"
+  recurso   String
+  recursoId String?
+  /// "criar" | "editar" | "apagar" | "aprovar" | "recusar" | "decidir"
+  acao      String
+  /// Resumo legível do que mudou. Sem dado sensível de usuária.
+  detalhe   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([recurso, createdAt])
+  @@index([actorId, createdAt])
+}

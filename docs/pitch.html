@@ -1,0 +1,1896 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Canaã Delas AI — Pitch (3 minutos)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /*
+       * Pitch — Canaã Delas AI · Hacka's Start no Futuro 2026
+       * Estrutura: os 9 blocos do roteiro do Encontro 4, um por slide.
+       * Identidade herdada de src/app/globals.css (coral Flo/Airbnb + Manrope).
+       * Gera PDF com: npm run pitch:pdf
+       */
+      :root {
+        --coral-50: #fff1f1;
+        --coral-100: #ffe1e2;
+        --coral-500: #ff5a5f;
+        --coral-600: #ef4a57;
+        --coral-700: #d1354a;
+        --clay-100: #efe7f9;
+        --clay-600: #7d4dac;
+        --sage-100: #e2e8da;
+        --sage-600: #566b45;
+        --mist: #f7f5f3;
+        --ink: #262322;
+        --muted: #726b67;
+        --line: #e6e2df;
+        --sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      @page {
+        size: 1280px 720px;
+        margin: 0;
+      }
+
+      html,
+      body {
+        background: #fff;
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      .slide {
+        position: relative;
+        width: 1280px;
+        height: 720px;
+        padding: 72px 88px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        page-break-after: always;
+        break-after: page;
+      }
+      .slide:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      /* Numeração do bloco, canto superior direito */
+      .step {
+        position: absolute;
+        top: 56px;
+        right: 88px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0.02em;
+      }
+      .step .n {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        background: var(--coral-500);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 16px;
+        font-weight: 800;
+      }
+      .step .t {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .eyebrow {
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--coral-600);
+        margin-bottom: 18px;
+      }
+
+      h2 {
+        font-size: 52px;
+        line-height: 1.06;
+        font-weight: 800;
+        letter-spacing: -0.028em;
+        max-width: 20ch;
+      }
+
+      .lead {
+        margin-top: 26px;
+        font-size: 26px;
+        line-height: 1.45;
+        color: var(--muted);
+        max-width: 46ch;
+        font-weight: 500;
+      }
+
+      .grid {
+        margin-top: auto;
+        display: grid;
+        gap: 20px;
+      }
+      .g3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .g2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .card {
+        background: var(--mist);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 24px 26px;
+      }
+      .card h3 {
+        font-size: 19px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 8px;
+      }
+      .card p {
+        font-size: 17px;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+      .card.accent {
+        background: var(--coral-50);
+        border-color: var(--coral-100);
+      }
+      .card.accent h3 {
+        color: var(--coral-700);
+      }
+
+      /* Bloco que ainda depende de dado de campo da equipe */
+      .todo {
+        background: #fffaf0;
+        border: 1px dashed #e0b877;
+        border-radius: 16px;
+        padding: 22px 26px;
+        margin-top: 28px;
+      }
+      .todo b {
+        display: block;
+        font-size: 14px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #a1670c;
+        margin-bottom: 6px;
+      }
+      .todo p {
+        font-size: 17px;
+        line-height: 1.5;
+        color: #6d5326;
+      }
+
+      .rule {
+        width: 68px;
+        height: 5px;
+        border-radius: 999px;
+        background: var(--coral-500);
+        margin-bottom: 26px;
+      }
+
+      /* ---------- Capa ---------- */
+      .cover {
+        justify-content: center;
+        background:
+          radial-gradient(
+            900px 520px at 88% -8%,
+            var(--coral-50) 0%,
+            transparent 62%
+          ),
+          radial-gradient(
+            700px 460px at -6% 108%,
+            var(--clay-100) 0%,
+            transparent 60%
+          );
+      }
+      .cover h1 {
+        font-size: 84px;
+        line-height: 1.02;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+      }
+      .cover h1 span {
+        color: var(--coral-500);
+      }
+      .cover .tag {
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 26px;
+      }
+      .cover .claim {
+        margin-top: 30px;
+        font-size: 29px;
+        line-height: 1.4;
+        color: var(--ink);
+        font-weight: 500;
+        max-width: 30ch;
+      }
+      .cover footer {
+        position: absolute;
+        left: 88px;
+        right: 88px;
+        bottom: 60px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+        color: var(--muted);
+        font-weight: 600;
+        border-top: 1px solid var(--line);
+        padding-top: 20px;
+      }
+
+      /* ---------- Métricas ---------- */
+      .metrics {
+        margin-top: 34px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+      .metric .v {
+        font-size: 46px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--coral-600);
+        font-variant-numeric: tabular-nums;
+      }
+      .metric .k {
+        margin-top: 4px;
+        font-size: 17px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      /* ---------- Lista de passos ---------- */
+      ol.steps {
+        margin-top: 30px;
+        list-style: none;
+        display: grid;
+        gap: 16px;
+      }
+      ol.steps li {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        font-size: 21px;
+        line-height: 1.45;
+      }
+      ol.steps li i {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: var(--coral-100);
+        color: var(--coral-700);
+        display: grid;
+        place-items: center;
+        font-style: normal;
+        font-size: 14px;
+        font-weight: 800;
+        margin-top: 3px;
+      }
+
+      /* Slide 7 carrega lead + 4 passos + aviso: aperta o ritmo vertical. */
+      .slide.tight .lead {
+        margin-top: 18px;
+        font-size: 23px;
+      }
+      .slide.tight ol.steps {
+        margin-top: 22px;
+        gap: 11px;
+      }
+      .slide.tight ol.steps li {
+        font-size: 20px;
+      }
+      .slide.tight .todo {
+        margin-top: 22px;
+        padding: 18px 26px;
+      }
+
+      .ask {
+        margin-top: auto;
+        background: var(--ink);
+        color: #fff;
+        border-radius: 16px;
+        padding: 26px 30px;
+      }
+      .ask b {
+        display: block;
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--coral-500);
+        margin-bottom: 8px;
+      }
+      .ask p {
+        font-size: 23px;
+        line-height: 1.4;
+        font-weight: 600;
+      }
+
+      /* ---------- Seção de aprofundamento ---------- */
+      .slide.deep h2 {
+        font-size: 46px;
+        max-width: 24ch;
+      }
+      .slide.deep h2 em {
+        font-style: normal;
+        color: var(--coral-500);
+      }
+      .hero-line {
+        margin-top: 22px;
+        font-size: 24px;
+        line-height: 1.45;
+        color: var(--muted);
+        font-weight: 500;
+        max-width: 62ch;
+      }
+
+      /* Esquema da janela fértil — diagrama, não gráfico de dados */
+      .day-lab {
+        font: 800 17px var(--sans);
+        fill: #fff;
+      }
+      .day-sub {
+        font: 600 12px var(--sans);
+        fill: rgba(255, 255, 255, 0.85);
+      }
+      .axis-lab {
+        font: 700 12px var(--sans);
+        fill: var(--muted);
+        letter-spacing: 0.08em;
+      }
+
+      /* Grade de funcionalidades */
+      .feats {
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 13px;
+      }
+      .feat {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px 15px;
+        background: var(--mist);
+      }
+      .feat h4 {
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: -0.015em;
+        margin-bottom: 4px;
+      }
+      .feat p {
+        font-size: 13px;
+        line-height: 1.38;
+        color: var(--muted);
+      }
+      .feat.soon {
+        background: #fffaf0;
+        border-color: #e8d3ae;
+      }
+      .feat.soon h4::after {
+        content: " · roteiro";
+        color: #a1670c;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+      }
+      .feat-key {
+        display: flex;
+        gap: 24px;
+        margin-top: 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .feat-key i {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        margin-right: 7px;
+        vertical-align: -1px;
+        border: 1px solid var(--line);
+      }
+
+      .quote {
+        margin-top: auto;
+        border-left: 5px solid var(--coral-500);
+        padding: 2px 0 2px 24px;
+        font-size: 23px;
+        line-height: 1.42;
+        font-weight: 600;
+        max-width: 64ch;
+      }
+
+      /* ---------- Anexo de dados ----------
+         Paleta dos gráficos: coral-700 #d1354a (destaque = Norte, onde fica
+         Canaã) e clay-600 #7d4dac (demais regiões). Par validado nos seis
+         testes de cor, incluindo separação para deuteranopia e protanopia. */
+      .slide.anexo {
+        padding: 56px 88px 56px;
+      }
+      .slide.anexo h2 {
+        font-size: 40px;
+        max-width: 26ch;
+      }
+      .badge {
+        position: absolute;
+        top: 56px;
+        right: 88px;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: var(--mist);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 7px 16px;
+      }
+
+      .charts {
+        margin-top: 28px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+      }
+      figure {
+        margin: 0;
+      }
+      figcaption {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 2px;
+      }
+      .figsub {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      .src {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      .chart-label {
+        font: 600 14px var(--sans);
+        fill: var(--ink);
+      }
+      .chart-value {
+        font: 800 14px var(--sans);
+        fill: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+      .chart-note {
+        font: 600 11px var(--sans);
+        fill: var(--muted);
+      }
+      .legend {
+        display: flex;
+        gap: 18px;
+        margin-top: 8px;
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .legend i {
+        display: inline-block;
+        width: 11px;
+        height: 11px;
+        border-radius: 3px;
+        margin-right: 6px;
+        vertical-align: -1px;
+      }
+
+      .stats {
+        margin-top: 26px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+      }
+      .stat {
+        background: var(--mist);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 22px 22px 20px;
+      }
+      .stat .v {
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        color: var(--coral-700);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+      .stat .k {
+        margin-top: 10px;
+        font-size: 15px;
+        line-height: 1.4;
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .stat .s {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      /* Coluna lateral do slide de dados locais — mais compacta. */
+      .stat.compact {
+        padding: 13px 18px 12px;
+      }
+      .stat.compact .v {
+        font-size: 32px;
+      }
+      .stat.compact .k {
+        margin-top: 7px;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+      .stat.compact .s {
+        margin-top: 6px;
+        font-size: 11.5px;
+      }
+
+      .stat.dark {
+        background: var(--ink);
+        border-color: var(--ink);
+      }
+      .stat.dark .v {
+        color: var(--coral-500);
+      }
+      .stat.dark .k {
+        color: #fff;
+      }
+      .stat.dark .s {
+        color: #a49b96;
+      }
+
+      .facts {
+        margin-top: 26px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 34px;
+      }
+      /* Três fatos em uma única faixa (Anexo C, que também carrega as fontes). */
+      .facts.f3 {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 26px;
+      }
+      .facts.f3 .fact {
+        font-size: 16px;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .fact {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        font-size: 17px;
+        line-height: 1.45;
+      }
+      .fact b {
+        color: var(--coral-700);
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .fact span {
+        color: var(--ink);
+      }
+
+      .sources {
+        margin-top: auto;
+        border-top: 1px solid var(--line);
+        padding-top: 16px;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--muted);
+        columns: 2;
+        column-gap: 44px;
+      }
+      .sources b {
+        color: var(--ink);
+      }
+
+      /* ---------- Página de metodologia ---------- */
+      .formulas {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+      }
+      .formula {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 17px 22px 15px;
+        background: var(--mist);
+      }
+      .formula .lbl {
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        margin-bottom: 12px;
+      }
+      .formula .res {
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        color: var(--coral-700);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+      .frac {
+        margin-top: 11px;
+        font-size: 15.5px;
+        line-height: 1.32;
+        max-width: 32ch;
+      }
+      .frac .num {
+        padding-bottom: 7px;
+      }
+      .frac .den {
+        border-top: 2px solid var(--ink);
+        padding-top: 7px;
+      }
+      .frac b {
+        font-variant-numeric: tabular-nums;
+        font-weight: 800;
+      }
+      .formula .chk {
+        margin-top: 12px;
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      .defs {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+      .def {
+        font-size: 13.5px;
+        line-height: 1.42;
+        color: var(--muted);
+      }
+      .def b {
+        display: block;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 3px;
+      }
+      .chain {
+        margin-top: auto;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .chain b {
+        color: var(--ink);
+      }
+
+      /* ---------- Roteiro final ---------- */
+      .script {
+        padding: 64px 88px;
+      }
+      .script h2 {
+        font-size: 40px;
+        margin-bottom: 6px;
+      }
+      .script .sub {
+        color: var(--muted);
+        font-size: 18px;
+        margin-bottom: 26px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 16px;
+      }
+      th {
+        text-align: left;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 0 12px 10px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      td {
+        padding: 8px 12px 8px 0;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+        line-height: 1.4;
+      }
+      td.time {
+        font-variant-numeric: tabular-nums;
+        font-weight: 700;
+        color: var(--coral-600);
+        white-space: nowrap;
+      }
+      td.blk {
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      tr.total td {
+        border-bottom: none;
+        padding-top: 14px;
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============ CAPA ============ -->
+    <section class="slide cover">
+      <p class="tag">Hacka's Start no Futuro 2026 · Eixo Mulher</p>
+      <h1>Canaã <span>Delas</span> AI</h1>
+      <p class="claim">
+        Tecnologia que cuida, conecta e transforma a vida das mulheres.
+      </p>
+      <footer>
+        <span>Equipe Canaã Delas</span>
+        <span>Pitch · 3 minutos</span>
+      </footer>
+    </section>
+
+    <!-- ============ 1 · ABERTURA ============ -->
+    <section class="slide">
+      <div class="step"><span class="n">1</span><span class="t">0:00 — 0:15</span></div>
+      <div class="rule"></div>
+      <p class="eyebrow">Abertura</p>
+      <h2>“Tecnologia que cuida, conecta e transforma a vida das mulheres.”</h2>
+      <p class="lead">
+        Em Canaã dos Carajás, a saúde da mulher é acompanhada de memória. O que
+        não se registra, não se previne.
+      </p>
+    </section>
+
+    <!-- ============ 2 · PROBLEMA ============ -->
+    <section class="slide">
+      <div class="step"><span class="n">2</span><span class="t">0:15 — 0:40</span></div>
+      <div class="rule"></div>
+      <p class="eyebrow">O problema e quem é afetado</p>
+      <h2>Sem histórico, a prevenção falha.</h2>
+      <p class="lead">
+        Ciclo, gestação, humor e exames ficam na memória ou no papel — e cada
+        consulta na UBS recomeça do zero.
+      </p>
+      <div class="grid g3">
+        <div class="card">
+          <h3>Quem é afetado</h3>
+          <p>
+            Mulheres em idade reprodutiva, sobretudo quem depende da rede
+            pública e não tem acompanhamento contínuo.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Onde acontece</h3>
+          <p>
+            Canaã dos Carajás (PA). O pré-natal saltou de 54% para <b>83%</b>
+            das gestantes desde 2010. No mesmo período o baixo peso ao nascer
+            <b>subiu</b> de 6,19% para 8,27%. Mais consulta não virou mais
+            saúde.
+          </p>
+        </div>
+        <div class="card accent">
+          <h3>Nossa hipótese</h3>
+          <p>
+            A falha na prevenção vem da ausência de um registro contínuo e
+            acessível do próprio corpo.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3 · SOLUÇÃO ============ -->
+    <section class="slide">
+      <div class="step"><span class="n">3</span><span class="t">0:40 — 1:10</span></div>
+      <div class="rule"></div>
+      <p class="eyebrow">A solução</p>
+      <h2>Um app que lembra dela — e por ela.</h2>
+      <p class="lead">
+        A usuária registra ciclo, gestação, bem-estar, medidas e exames. Uma
+        assistente de IA lê esse histórico real e responde no contexto dela.
+      </p>
+      <div class="grid g3">
+        <div class="card">
+          <h3>Registrar</h3>
+          <p>
+            Ciclo, gestação, humor, sono, dor, pílula, autoexame e medidas de
+            saúde — em telas simples.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Lembrar</h3>
+          <p>
+            Lembretes de exames preventivos, consultas e medicação, com
+            previsões calculadas a partir do ciclo.
+          </p>
+        </div>
+        <div class="card accent">
+          <h3>Conversar</h3>
+          <p>
+            Assistente com memória de longo prazo: aprende fatos duráveis e a
+            usuária vê e apaga tudo o que foi aprendido.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4 · IMPACTO ============ -->
+    <section class="slide">
+      <div class="step"><span class="n">4</span><span class="t">1:10 — 1:30</span></div>
+      <div class="rule"></div>
+      <p class="eyebrow">O impacto esperado</p>
+      <h2>Mais exames em dia. Consulta com histórico em mãos.</h2>
+      <div class="metrics">
+        <div class="metric">
+          <div class="v">↑</div>
+          <div class="k">Exames preventivos realizados no prazo</div>
+        </div>
+        <div class="metric">
+          <div class="v">↑</div>
+          <div class="k">Usuárias ativas registrando o ciclo toda semana</div>
+        </div>
+        <div class="metric">
+          <div class="v">↓</div>
+          <div class="k">Consultas que começam sem nenhum histórico</div>
+        </div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Como medimos</h3>
+          <p>
+            Lembretes cumpridos / lembretes criados, e usuárias ativas por
+            semana. Ambos já são registrados pelo banco do app.
+          </p>
+        </div>
+        <div class="card accent">
+          <h3>Para além da usuária</h3>
+          <p>
+            Relatórios anonimizados podem apoiar campanhas de prevenção da
+            gestão municipal de saúde.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5 · VALIDAÇÃO ============ -->
+    <section class="slide">
+      <div class="step"><span class="n">5</span><span class="t">1:30 — 1:50</span></div>
+      <div class="rule"></div>
+      <p class="eyebrow">Validação e evidências</p>
+      <h2>O que já sabemos e o que ainda vamos ouvir.</h2>
+      <div class="todo">
+        <b>Bloco a completar pela equipe</b>
+        <p>
+          Este é o bloco que os mentores mais cobram. Insira aqui: quem vocês
+          ouviram no Encontro 1, quantas pessoas, o que disseram — e o resultado
+          do teste do MVP com usuárias de fora da equipe. Sem esses dados, o
+          pitch fica sem sustentação.
+        </p>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Plano de validação</h3>
+          <p>
+            Escuta na UBS com agentes comunitárias de saúde e sessões guiadas de
+            uso do MVP com usuárias reais de Canaã.
+          </p>
+        </div>
+        <div class="card">
+          <h3>O que queremos provar</h3>
+          <p>
+            Que registrar o ciclo e receber lembretes faz a usuária chegar em dia
+            ao exame preventivo — e que a assistente é percebida como confiável.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6 · VIABILIDADE ============ -->
+    <section class="slide">
+      <div class="step"><span class="n">6</span><span class="t">1:50 — 2:10</span></div>
+      <div class="rule"></div>
+      <p class="eyebrow">Viabilidade</p>
+      <h2>Gratuito para ela. Sustentável para nós.</h2>
+      <div class="grid g3">
+        <div class="card">
+          <h3>Receita</h3>
+          <p>
+            Gratuito para a usuária, sempre. A receita vem primeiro de
+            <b>convênio com a gestão municipal</b> — a cidade tem o maior PIB
+            por habitante do país. Depois: clínicas parceiras e plano Premium.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Custos</h3>
+          <p>
+            Hoje próximos de zero — stack open-source. Entram depois: banco
+            gerenciado, hospedagem, domínio e créditos da API de IA.
+          </p>
+        </div>
+        <div class="card accent">
+          <h3>Diferencial: privacidade</h3>
+          <p>
+            O Flo fechou acordo com a FTC americana em 2021 por compartilhar
+            dado menstrual com Facebook e Google. Nós fazemos o oposto: PIN de
+            bloqueio, e a usuária <b>lê e apaga</b> tudo o que a IA aprendeu.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 7 · PROTÓTIPO ============ -->
+    <section class="slide tight">
+      <div class="step"><span class="n">7</span><span class="t">2:10 — 2:35</span></div>
+      <div class="rule"></div>
+      <p class="eyebrow">O protótipo</p>
+      <h2>Não é maquete. É um MVP que roda.</h2>
+      <p class="lead">
+        Aplicação web funcional em Next.js 15 + React 19, com autenticação,
+        banco de dados e mais de vinte telas.
+      </p>
+      <ol class="steps">
+        <li><i>1</i><span>Registrar o ciclo — o app calcula fase, dia e previsões.</span></li>
+        <li><i>2</i><span>Criar um lembrete de exame preventivo com data.</span></li>
+        <li><i>3</i><span>Conversar com a assistente — ela já sabe o contexto dela.</span></li>
+        <li><i>4</i><span>Abrir a página de memória e apagar um fato aprendido.</span></li>
+      </ol>
+      <div class="todo">
+        <b>Antes de apresentar</b>
+        <p>
+          Rodar <code>npm run dev</code> e deixar a conta de demonstração já
+          logada. Ter prints das telas como plano B, caso a internet falhe.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ 8 · PRÓXIMOS PASSOS ============ -->
+    <section class="slide">
+      <div class="step"><span class="n">8</span><span class="t">2:35 — 2:50</span></div>
+      <div class="rule"></div>
+      <p class="eyebrow">Próximos passos e pedido</p>
+      <h2>Do protótipo ao piloto.</h2>
+      <ol class="steps">
+        <li><i>1</i><span>Piloto com um grupo de usuárias reais em Canaã.</span></li>
+        <li><i>2</i><span>Migrar para Postgres e publicar o app.</span></li>
+        <li><i>3</i><span>Conectar com a rede pública de saúde do município.</span></li>
+      </ol>
+      <div class="ask">
+        <b>O nosso pedido</b>
+        <p>
+          Apoio de hospedagem e créditos de IA, e uma ponte com a UBS para ouvir
+          e testar com as mulheres de Canaã.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ 9 · EQUIPE ============ -->
+    <section class="slide">
+      <div class="step"><span class="n">9</span><span class="t">2:50 — 3:00</span></div>
+      <div class="rule"></div>
+      <p class="eyebrow">A equipe</p>
+      <h2>Por que nós.</h2>
+      <div class="todo">
+        <b>Bloco a completar pela equipe</b>
+        <p>
+          Nomes das integrantes e o que cada uma faz melhor — e a razão de vocês
+          serem as pessoas certas para tocar isso: vocês são de Canaã e o
+          problema é de vocês.
+        </p>
+      </div>
+      <div class="grid g2">
+        <div class="card accent">
+          <h3>Frase de fechamento</h3>
+          <p>
+            “Tecnologia que cuida, conecta e transforma a vida das mulheres —
+            começando pelas de Canaã dos Carajás.”
+          </p>
+        </div>
+        <div class="card">
+          <h3>Aviso ético</h3>
+          <p>
+            Conteúdo educativo. O app não substitui avaliação, diagnóstico ou
+            acompanhamento por profissionais de saúde.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ P1 · O CICLO É UM SINAL VITAL ============ -->
+    <section class="slide deep">
+      <span class="badge">Aprofundamento</span>
+      <div class="rule"></div>
+      <p class="eyebrow">Por que acompanhar o ciclo</p>
+      <h2>O ciclo menstrual é o <em>quinto sinal vital</em>.</h2>
+      <p class="hero-line">
+        Pressão, temperatura, pulso, respiração — e o ciclo. É o painel de
+        controle do corpo dela, e o único que ninguém anota.
+      </p>
+
+      <div class="grid g2" style="margin-top: 28px">
+        <div class="card">
+          <h3>O que o ciclo denuncia</h3>
+          <p>
+            Ciclo que encurta, alonga ou some não é “frescura”: pode apontar
+            síndrome dos ovários policísticos, tireoide, anemia, estresse
+            extremo ou endometriose. Sem registro, ninguém percebe o padrão —
+            nem ela, nem o médico.
+          </p>
+        </div>
+        <div class="card accent">
+          <h3>O preço do silêncio</h3>
+          <p>
+            A endometriose atinge cerca de <b>1 em cada 10 mulheres</b> e leva,
+            em média, <b>de 7 a 10 anos</b> até o diagnóstico — no Brasil, há
+            relatos de até 12. Dor forte é normalizada como “cólica”, ano após
+            ano.
+          </p>
+        </div>
+      </div>
+
+      <div class="facts" style="margin-top: 24px">
+        <p class="fact">
+          <b>4 fases</b>
+          <span
+            >menstrual, folicular, ovulatória e lútea. O app diz em qual ela
+            está hoje e o que esperar — energia, humor, TPM.</span
+          >
+        </p>
+        <p class="fact">
+          <b>≤ 4 dias</b>
+          <span
+            >de variação entre ciclos é o que o app classifica como regular.
+            Acima disso, ele sinaliza — e ela leva isso para a consulta.</span
+          >
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ P2 · JANELA FÉRTIL ============ -->
+    <section class="slide deep">
+      <span class="badge">Aprofundamento</span>
+      <div class="rule"></div>
+      <p class="eyebrow">Engravidar — ou não</p>
+      <h2>Engravidar não é sorte. É <em>janela</em>.</h2>
+      <p class="hero-line">
+        Só existem cerca de seis dias por ciclo em que a concepção é possível. O
+        resto do mês, não. Quem não sabe quais são, tenta no escuro.
+      </p>
+
+      <svg
+        viewBox="0 0 1000 148"
+        width="100%"
+        style="margin-top: 26px"
+        role="img"
+        aria-label="Esquema da janela fértil: os cinco dias antes da ovulação, o dia da ovulação e o dia seguinte. A maior chance está nos dois dias que antecedem a ovulação."
+      >
+        <text class="axis-lab" x="20" y="14">JANELA FÉRTIL — 6 DIAS</text>
+        <text class="axis-lab" x="992" y="14" text-anchor="end">
+          MENOR CHANCE
+        </text>
+
+        <rect x="20" y="26" width="132" height="66" rx="6" fill="#b08fd0" />
+        <text class="day-lab" x="86" y="56" text-anchor="middle">−5</text>
+        <text class="day-sub" x="86" y="76" text-anchor="middle">dias</text>
+
+        <rect x="160" y="26" width="132" height="66" rx="6" fill="#9d76c6" />
+        <text class="day-lab" x="226" y="56" text-anchor="middle">−4</text>
+        <text class="day-sub" x="226" y="76" text-anchor="middle">dias</text>
+
+        <rect x="300" y="26" width="132" height="66" rx="6" fill="#7d4dac" />
+        <text class="day-lab" x="366" y="56" text-anchor="middle">−3</text>
+        <text class="day-sub" x="366" y="76" text-anchor="middle">dias</text>
+
+        <rect x="440" y="26" width="132" height="66" rx="6" fill="#d1354a" />
+        <text class="day-lab" x="506" y="56" text-anchor="middle">−2</text>
+        <text class="day-sub" x="506" y="76" text-anchor="middle">maior chance</text>
+
+        <rect x="580" y="26" width="132" height="66" rx="6" fill="#d1354a" />
+        <text class="day-lab" x="646" y="56" text-anchor="middle">−1</text>
+        <text class="day-sub" x="646" y="76" text-anchor="middle">maior chance</text>
+
+        <rect x="720" y="26" width="132" height="66" rx="6" fill="#a82b3d" />
+        <text class="day-lab" x="786" y="56" text-anchor="middle">OVULAÇÃO</text>
+        <text class="day-sub" x="786" y="76" text-anchor="middle">óvulo liberado</text>
+
+        <rect x="860" y="26" width="132" height="66" rx="6" fill="#cfc7c2" />
+        <text class="day-lab" x="926" y="56" text-anchor="middle" fill="#4a433f">+1</text>
+        <text class="day-sub" x="926" y="76" text-anchor="middle" fill="#4a433f">dia</text>
+
+        <text class="axis-lab" x="20" y="118">
+          O QUE O APP CALCULA SOZINHO A PARTIR DAS DATAS QUE ELA REGISTRA
+        </text>
+        <text class="axis-lab" x="20" y="138" fill="#726b67">
+          Esquema ilustrativo — as proporções não representam probabilidades exatas.
+        </text>
+      </svg>
+
+      <div class="facts" style="margin-top: 20px">
+        <p class="fact">
+          <b>5 dias</b>
+          <span
+            >é quanto o espermatozoide sobrevive no corpo dela. O óvulo dura de
+            <b>12 a 24 horas</b>. Por isso a janela abre antes da ovulação, não
+            depois.</span
+          >
+        </p>
+        <p class="fact">
+          <b>192 gestações</b>
+          <span
+            >acompanhadas por Wilcox e colegas (NEJM, 1995): nenhuma veio de
+            relação fora dessa janela de seis dias.</span
+          >
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ P3 · A DEMANDA JÁ EXISTE ============ -->
+    <section class="slide deep">
+      <span class="badge">Aprofundamento</span>
+      <div class="rule"></div>
+      <p class="eyebrow">A demanda já está provada</p>
+      <h2>77 milhões de mulheres abrem o Flo <em>todo mês</em>.</h2>
+
+      <div class="stats">
+        <div class="stat dark">
+          <div class="v">420 mi</div>
+          <div class="k">pessoas já usaram o Flo</div>
+          <div class="s">Flo Health, 2026</div>
+        </div>
+        <div class="stat dark">
+          <div class="v">77 mi</div>
+          <div class="k">usuárias ativas por mês</div>
+          <div class="s">Flo Health, 2026</div>
+        </div>
+        <div class="stat">
+          <div class="v">~5 mi</div>
+          <div class="k">assinantes pagantes do Flo Premium</div>
+          <div class="s">General Atlantic, 2024</div>
+        </div>
+        <div class="stat">
+          <div class="v">US$ 1 bi+</div>
+          <div class="k">avaliação — primeira femtech unicórnio da Europa</div>
+          <div class="s">Série C, 2024</div>
+        </div>
+      </div>
+
+      <div class="facts f3" style="margin-top: 24px">
+        <p class="fact">
+          <b>91,2%</b>
+          <span
+            >baixaram um app de ciclo para <b>entender o próprio corpo</b> —
+            saber mais sobre o ciclo, decifrar sintomas, lidar com a TPM.</span
+          >
+        </p>
+        <p class="fact">
+          <b>Os três motivos</b>
+          <span
+            >que mais aparecem: prever e se preparar para a menstruação,
+            engravidar, e chegar na consulta sabendo o que dizer.</span
+          >
+        </p>
+        <p class="fact">
+          <b>US$ 51 bi → 60 bi</b>
+          <span
+            >é o mercado global de femtech de 2023 para 2027. O Brasil responde
+            por US$ 1,04 bi, com apenas 23 empresas.</span
+          >
+        </p>
+      </div>
+
+      <p class="quote">
+        O mercado está provado — e o líder dele fechou acordo com a FTC por
+        compartilhar dado menstrual com Facebook e Google. Falta uma versão
+        feita para Canaã, que devolva o controle do dado a quem o gerou.
+      </p>
+    </section>
+
+    <!-- ============ P4 · FUNCIONALIDADES ============ -->
+    <section class="slide deep">
+      <span class="badge">Aprofundamento</span>
+      <div class="rule"></div>
+      <p class="eyebrow">Tudo o que ela pode fazer</p>
+      <h2>Um app inteiro — e a maior parte <em>já roda</em>.</h2>
+
+      <div class="feats">
+        <div class="feat">
+          <h4>Ciclo</h4>
+          <p>Calendário, previsão, dia atual, fase e regularidade.</p>
+        </div>
+        <div class="feat">
+          <h4>Janela fértil</h4>
+          <p>Ovulação pela média dos ciclos dela — não por um 28 genérico.</p>
+        </div>
+        <div class="feat">
+          <h4>Gestação</h4>
+          <p>Semanas, trimestre, data provável do parto e marcos.</p>
+        </div>
+        <div class="feat">
+          <h4>Bem-estar</h4>
+          <p>Humor com intensidade e o padrão ao longo do ciclo.</p>
+        </div>
+        <div class="feat">
+          <h4>Diário</h4>
+          <p>Energia, sono, dor e sintomas. Um minuto por dia.</p>
+        </div>
+        <div class="feat">
+          <h4>Medidas</h4>
+          <p>Peso, pressão, glicemia e temperatura basal.</p>
+        </div>
+        <div class="feat">
+          <h4>Pílula</h4>
+          <p>Registro do anticoncepcional, um toque por dia.</p>
+        </div>
+        <div class="feat">
+          <h4>Autoexame</h4>
+          <p>Lembrete e registro mensal do exame das mamas.</p>
+        </div>
+        <div class="feat">
+          <h4>Lembretes</h4>
+          <p>Preventivo, consulta e medicação, com histórico.</p>
+        </div>
+        <div class="feat">
+          <h4>Assistente de IA</h4>
+          <p>Já conhece o ciclo e os sintomas dela. Nunca diagnostica.</p>
+        </div>
+        <div class="feat">
+          <h4>Memória aberta</h4>
+          <p>Ela vê o que a IA aprendeu e apaga com um clique.</p>
+        </div>
+        <div class="feat">
+          <h4>PIN de bloqueio</h4>
+          <p>Porque nem sempre o celular é só dela.</p>
+        </div>
+        <div class="feat">
+          <h4>Relatório</h4>
+          <p>Exporta o histórico para levar à consulta na UBS.</p>
+        </div>
+        <div class="feat soon">
+          <h4>Modo parceiro</h4>
+          <p>Ele acompanha por código. Ela convida, aprova e desliga.</p>
+        </div>
+        <div class="feat soon">
+          <h4>Rede de clínicas</h4>
+          <p>Agendamento e campanhas com parceiros locais.</p>
+        </div>
+      </div>
+
+      <div class="feat-key">
+        <span><i style="background: #f7f5f3"></i>Já funciona no MVP de hoje</span>
+        <span><i style="background: #fffaf0; border-color: #e8d3ae"></i>Roteiro — ainda não construído</span>
+      </div>
+    </section>
+
+    <!-- ============ L1 · CANAÃ EM NÚMEROS ============ -->
+    <section class="slide anexo">
+      <span class="badge">Canaã dos Carajás · Dados locais</span>
+      <div class="rule"></div>
+      <p class="eyebrow">O escopo, em números da nossa cidade</p>
+      <h2>Mais consulta não virou mais saúde.</h2>
+
+      <div class="charts" style="grid-template-columns: 1.35fr 1fr; margin-top: 16px">
+        <figure>
+          <figcaption>O paradoxo de Canaã, 2010–2024</figcaption>
+          <p class="figsub">
+            Duas séries do mesmo município, cada uma na sua escala · DATASUS /
+            SINASC
+          </p>
+
+          <svg
+            viewBox="0 0 900 216"
+            width="100%"
+            role="img"
+            aria-label="Duas séries anuais de Canaã dos Carajás entre 2010 e 2024. Gestantes com sete ou mais consultas de pré-natal sobe de 54,13 por cento em 2010 para 83,12 por cento em 2024. Percentual de nascidos vivos com baixo peso sobe de 6,19 por cento em 2010 para 8,27 por cento em 2024, com o valor mais alto da série em 2024."
+          >
+            <!-- ---------- pré-natal ---------- -->
+            <text class="chart-label" x="20" y="14">
+              Gestantes com 7+ consultas de pré-natal
+            </text>
+            <text class="chart-note" x="20" y="30">escala 0–100%</text>
+            <g stroke="#e6e2df" stroke-width="1">
+              <line x1="20" y1="170" x2="420" y2="170" />
+              <line x1="20" y1="97" x2="420" y2="97" />
+            </g>
+            <polyline
+              fill="none"
+              stroke="#3f7d20"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              points="20,91.5 48.6,109.7 77.1,114.8 105.7,114.4 134.3,101.1 162.9,97.8 191.4,88.7 220,92.1 248.6,92.7 277.1,75.8 305.7,67.8 334.3,57.8 362.9,51.3 391.4,50.6 420,49.5"
+            />
+            <circle cx="20" cy="91.5" r="4.5" fill="#3f7d20" stroke="#fff" stroke-width="2" />
+            <circle cx="420" cy="49.5" r="5.5" fill="#3f7d20" stroke="#fff" stroke-width="2" />
+            <text class="chart-value" x="20" y="83" fill="#3f7d20">54,13%</text>
+            <text class="chart-value" x="420" y="41" text-anchor="end" fill="#3f7d20">83,12%</text>
+            <g class="chart-note">
+              <text x="20" y="188">2010</text>
+              <text x="420" y="188" text-anchor="end">2024</text>
+            </g>
+            <text class="chart-note" x="20" y="208" fill="#3f7d20">
+              ▲ 29 pontos percentuais em 14 anos
+            </text>
+
+            <!-- ---------- baixo peso ---------- -->
+            <text class="chart-label" x="500" y="14">
+              Nascidos vivos com baixo peso
+            </text>
+            <text class="chart-note" x="500" y="30">escala 0–10%</text>
+            <g stroke="#e6e2df" stroke-width="1">
+              <line x1="500" y1="170" x2="880" y2="170" />
+              <line x1="500" y1="97" x2="880" y2="97" />
+            </g>
+            <polyline
+              fill="none"
+              stroke="#d1354a"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              points="500,80.2 527.1,55.7 554.3,73.9 581.4,65.2 608.6,61.7 635.7,86.2 662.9,76.5 690,92.4 717.1,64.0 744.3,88.5 771.4,83.0 798.6,74.0 825.7,59.9 852.9,62.8 880,50.1"
+            />
+            <circle cx="500" cy="80.2" r="4.5" fill="#d1354a" stroke="#fff" stroke-width="2" />
+            <circle cx="880" cy="50.1" r="5.5" fill="#d1354a" stroke="#fff" stroke-width="2" />
+            <text class="chart-value" x="500" y="72" fill="#d1354a">6,19%</text>
+            <text class="chart-value" x="880" y="42" text-anchor="end" fill="#d1354a">8,27%</text>
+            <g class="chart-note">
+              <text x="500" y="188">2010</text>
+              <text x="880" y="188" text-anchor="end">2024</text>
+            </g>
+            <text class="chart-note" x="500" y="208" fill="#d1354a">
+              ▲ maior valor de toda a série é 2024
+            </text>
+          </svg>
+        </figure>
+
+        <div>
+          <div class="stat dark compact" style="margin-bottom: 8px">
+            <div class="v">R$ 591 mil</div>
+            <div class="k">
+              PIB por habitante em 2020, o maior do Brasil — 16× a média
+              nacional. Dinheiro não é o gargalo
+            </div>
+            <div class="s">IBGE, PIB dos Municípios 2020</div>
+          </div>
+          <div class="stat compact" style="margin-bottom: 8px">
+            <div class="v">15,70%</div>
+            <div class="k">
+              dos partos são de mães com até 19 anos — contra 11,43% no Brasil
+            </div>
+            <div class="s">DATASUS/SINASC, 2024</div>
+          </div>
+          <div class="stat compact">
+            <div class="v">678 → 1.777</div>
+            <div class="k">
+              nascimentos por ano, 2010–2024. A cidade dobrou; a rede de
+              cuidado, não
+            </div>
+            <div class="s">DATASUS/SINASC</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="src" style="margin-top: 14px">
+        <b>Leitura.</b> Em 14 anos Canaã levou o pré-natal de 54% para 83% das
+        gestantes — hoje supera Brasil (79,07%) e Pará (62,62%). No mesmo
+        período, o baixo peso ao nascer <b>subiu</b>, e 2024 é o pior ano da
+        série. A mortalidade infantil segue acima da nacional: 15,76 contra
+        12,56 por mil. <b>O acesso à consulta foi resolvido; o que acontece
+        entre elas, não.</b>
+      </p>
+    </section>
+
+    <!-- ============ L2 · RESOLVENDO ============ -->
+    <section class="slide anexo">
+      <span class="badge">Canaã dos Carajás · Solução</span>
+      <div class="rule"></div>
+      <p class="eyebrow">Resolvendo esse problema</p>
+      <h2>Cada número desses tem uma tela no app.</h2>
+
+      <table style="margin-top: 22px">
+        <thead>
+          <tr>
+            <th style="width: 30%">O que o dado mostra</th>
+            <th style="width: 27%">Por que acontece</th>
+            <th>O que o Canaã Delas AI faz</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <b>83,12%</b> fazem 7+ consultas, mas o baixo peso ao nascer subiu
+              para <b>8,27%</b> — pior ano da série
+            </td>
+            <td>
+              Ir à consulta não é ser acompanhada. Entre uma e outra passam-se
+              semanas sem registro nenhum
+            </td>
+            <td>
+              Diário de sintomas, dor e sono + medidas de pressão, peso e
+              glicemia em casa, com histórico que ela leva à consulta
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Mortalidade infantil de <b>15,76</b> por mil, acima do Brasil
+              (12,56)
+            </td>
+            <td>
+              Sinal de alerta que aparece em casa e não chega à equipe de saúde
+            </td>
+            <td>
+              Acompanhamento de gestação com semanas, trimestre, DPP e marcos —
+              e lembrete de cada consulta agendada
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>15,70%</b> dos partos são de mães adolescentes, acima da média
+              nacional
+            </td>
+            <td>
+              Falta de informação sobre ciclo, janela fértil e contracepção
+            </td>
+            <td>
+              Ciclo com fase e janela fértil calculadas, registro diário da
+              pílula e biblioteca educativa em linguagem simples
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Norte tem a <b>maior incidência</b> de câncer do colo do útero do
+              país: 20,48 por 100 mil
+            </td>
+            <td>Preventivo esquecido, sem ninguém para lembrar</td>
+            <td>
+              Lembretes de exame preventivo e consulta, com data e histórico,
+              mais o registro mensal do autoexame das mamas
+            </td>
+          </tr>
+          <tr>
+            <td>
+              A cidade saltou de <b>678 para 1.777</b> nascimentos por ano
+            </td>
+            <td>
+              Equipe de saúde não cresce na velocidade da população migrante
+            </td>
+            <td>
+              A assistente de IA responde às 2h da manhã, com o contexto real
+              dela — e encaminha à UBS quando é caso clínico
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="src" style="margin-top: 18px">
+        <b>Fontes dos dados locais.</b> Ministério da Saúde — DATASUS (SINASC e
+        SIM), séries 2010–2024 por município, compiladas pelo portal Primeira
+        Infância em Dados (Fundação Maria Cecília Souto Vidigal). IBGE, Censo
+        2022 e Produto Interno Bruto dos Municípios 2020. INCA, Estimativa
+        2023–2025. FTC (EUA), acordo com a Flo Health, 2021.
+      </p>
+    </section>
+
+    <!-- ============ L3 · METODOLOGIA ============ -->
+    <section class="slide anexo">
+      <span class="badge">Canaã dos Carajás · Metodologia</span>
+      <div class="rule"></div>
+      <p class="eyebrow">Como esses números são calculados</p>
+      <h2>Dá para conferir a conta.</h2>
+
+      <div class="formulas">
+        <div class="formula">
+          <p class="lbl">Gestantes com 7 ou mais consultas de pré-natal</p>
+          <div class="res">83,12%</div>
+          <div class="frac">
+            <div class="num">
+              <b>1.477</b> nascimentos cuja mãe fez 7+ consultas
+            </div>
+            <div class="den"><b>1.777</b> nascidos vivos em Canaã em 2024</div>
+          </div>
+          <p class="chk">
+            1.477 ÷ 1.777 = 0,8312. O número de consultas é declarado na
+            Declaração de Nascido Vivo, preenchida na maternidade.
+          </p>
+        </div>
+
+        <div class="formula">
+          <p class="lbl">Nascidos vivos com baixo peso (menos de 2.500 g)</p>
+          <div class="res">8,27%</div>
+          <div class="frac">
+            <div class="num"><b>147</b> nascimentos com menos de 2.500 g</div>
+            <div class="den">
+              <b>1.777</b> nascidos vivos em Canaã em 2024
+            </div>
+          </div>
+          <p class="chk">
+            147 ÷ 1.777 = 0,0827. O peso é aferido no parto e registrado na
+            mesma Declaração de Nascido Vivo.
+          </p>
+        </div>
+      </div>
+
+      <div class="defs">
+        <p class="def">
+          <b>O denominador do pré-natal</b>
+          É o total de <i>nascidos vivos</i>, não o de mulheres que
+          engravidaram. O indicador mede o acompanhamento de quem chegou ao
+          parto. Vale para 2023: 1.326 ÷ 1.610 = <b>82,36%</b>.
+        </p>
+        <p class="def">
+          <b>Um número que decidimos não usar</b>
+          O % de óbitos infantis por causas evitáveis foi <b>82,14%</b> em 2024
+          — mas 45,16% em 2023 e 53,33% em 2022. Com 28 óbitos no ano, dois
+          casos mexem 7 pontos.
+        </p>
+        <p class="def">
+          <b>Por quê</b>
+          Somando 2020–2024, são <b>64 evitáveis em 98 óbitos = 65,3%</b>,
+          igual à média do Brasil (65,6%). O número isolado de 2024 é ruído de
+          amostra pequena, não evidência. Preferimos indicadores com milhares
+          de nascimentos no denominador.
+        </p>
+      </div>
+
+      <p class="chain">
+        <b>Cadeia do dado.</b> Declaração de Nascido Vivo e Declaração de Óbito
+        → <b>SINASC</b> e <b>SIM</b> → consolidados pelo <b>DATASUS</b> →
+        série municipal 2010–2024 publicada pelo portal Primeira Infância em
+        Dados (Fundação Maria Cecília Souto Vidigal). Conferimos numerador e
+        denominador contra o percentual publicado: as contas fecham.
+        <b>Ressalva:</b> 2024 ainda pode ser preliminar no DATASUS — por isso
+        2023 aparece ao lado.
+      </p>
+    </section>
+
+    <!-- ============ ANEXO A · O TAMANHO DO PROBLEMA ============ -->
+    <section class="slide anexo">
+      <span class="badge">Anexo A · Dados</span>
+      <div class="rule"></div>
+      <p class="eyebrow">O tamanho do problema</p>
+      <h2>Um câncer quase totalmente evitável — que ainda mata.</h2>
+
+      <div class="stats">
+        <div class="stat dark">
+          <div class="v">661 mil</div>
+          <div class="k">casos novos de câncer do colo do útero no mundo</div>
+          <div class="s">Globocan/OMS, 2022</div>
+        </div>
+        <div class="stat dark">
+          <div class="v">348 mil</div>
+          <div class="k">mortes no mundo no mesmo ano</div>
+          <div class="s">Globocan/OMS, 2022</div>
+        </div>
+        <div class="stat">
+          <div class="v">85%</div>
+          <div class="k">dessas mortes ocorrem em países de baixa e média renda</div>
+          <div class="s">OMS</div>
+        </div>
+        <div class="stat">
+          <div class="v">17 mil</div>
+          <div class="k">casos novos por ano no Brasil</div>
+          <div class="s">INCA, estimativa 2023–2025</div>
+        </div>
+      </div>
+
+      <div class="facts">
+        <p class="fact">
+          <b>≤ 4</b>
+          <span
+            >casos por 100 mil mulheres/ano é o limiar da OMS para considerar a
+            doença eliminada. O Brasil está em 13,25 — e a Região Norte, em
+            20,48. Cinco vezes a meta.</span
+          >
+        </p>
+        <p class="fact">
+          <b>90-70-90</b>
+          <span
+            >é a estratégia da OMS: 90% das meninas vacinadas contra HPV até os
+            15 anos, 70% das mulheres rastreadas aos 35 e aos 45, 90% das que
+            têm lesão tratadas.</span
+          >
+        </p>
+        <p class="fact">
+          <b>+13%</b>
+          <span
+            >é o crescimento estimado pelo INCA para o triênio 2026–2028: cerca
+            de 19,3 mil casos novos por ano.</span
+          >
+        </p>
+        <p class="fact">
+          <b>12,5%</b>
+          <span
+            >das brasileiras de 25 a 64 anos nunca fizeram o exame
+            citopatológico.</span
+          >
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ ANEXO B · O RECORTE REGIONAL ============ -->
+    <section class="slide anexo">
+      <span class="badge">Anexo B · Dados</span>
+      <div class="rule"></div>
+      <p class="eyebrow">O recorte regional</p>
+      <h2>O Norte adoece mais — e é onde menos se cuida.</h2>
+
+      <div class="charts">
+        <!-- Gráfico 1 · incidência -->
+        <figure>
+          <figcaption>Câncer do colo do útero: incidência</figcaption>
+          <p class="figsub">
+            Casos novos por 100 mil mulheres, por região · INCA, estimativa
+            2023–2025
+          </p>
+          <svg
+            viewBox="0 0 505 216"
+            width="100%"
+            role="img"
+            aria-label="Taxa de incidência de câncer do colo do útero por 100 mil mulheres, por região: Norte 20,48; Nordeste 17,59; Centro-Oeste 16,66; Sul 14,55; Sudeste 12,93."
+          >
+            <!-- eixo de base -->
+            <line x1="130" y1="4" x2="130" y2="202" stroke="#e6e2df" stroke-width="1" />
+
+            <text class="chart-label" x="122" y="26" text-anchor="end">Norte</text>
+            <path d="M130,8 H442 A4,4 0 0 1 446,12 V30 A4,4 0 0 1 442,34 H130 Z" fill="#d1354a" />
+            <text class="chart-value" x="456" y="26" fill="#d1354a">20,48</text>
+
+            <text class="chart-label" x="122" y="66" text-anchor="end">Nordeste</text>
+            <path d="M130,48 H398 A4,4 0 0 1 402,52 V70 A4,4 0 0 1 398,74 H130 Z" fill="#7d4dac" />
+            <text class="chart-value" x="412" y="66">17,59</text>
+
+            <text class="chart-label" x="122" y="106" text-anchor="end">Centro-Oeste</text>
+            <path d="M130,88 H383 A4,4 0 0 1 387,92 V110 A4,4 0 0 1 383,114 H130 Z" fill="#7d4dac" />
+            <text class="chart-value" x="397" y="106">16,66</text>
+
+            <text class="chart-label" x="122" y="146" text-anchor="end">Sul</text>
+            <path d="M130,128 H351 A4,4 0 0 1 355,132 V150 A4,4 0 0 1 351,154 H130 Z" fill="#7d4dac" />
+            <text class="chart-value" x="365" y="146">14,55</text>
+
+            <text class="chart-label" x="122" y="186" text-anchor="end">Sudeste</text>
+            <path d="M130,168 H326 A4,4 0 0 1 330,172 V190 A4,4 0 0 1 326,194 H130 Z" fill="#7d4dac" />
+            <text class="chart-value" x="340" y="186">12,93</text>
+          </svg>
+          <div class="legend">
+            <span><i style="background: #d1354a"></i>Norte (onde fica Canaã)</span>
+            <span><i style="background: #7d4dac"></i>Demais regiões</span>
+          </div>
+        </figure>
+
+        <!-- Gráfico 2 · pré-natal -->
+        <figure>
+          <figcaption>Pré-natal: 7 ou mais consultas</figcaption>
+          <p class="figsub">
+            % das gestantes, por região · SINASC 2023, análise ICEH/UFPel
+          </p>
+          <svg
+            viewBox="0 0 505 216"
+            width="100%"
+            role="img"
+            aria-label="Percentual de gestantes com sete ou mais consultas de pré-natal, por região: Sul 85,0; Sudeste 81,5; Centro-Oeste 77,0; Nordeste 76,1; Norte 63,3. Média do Brasil 78,1 por cento."
+          >
+            <line x1="130" y1="4" x2="130" y2="202" stroke="#e6e2df" stroke-width="1" />
+
+            <!-- referência: média do Brasil, 78,1% -->
+            <line
+              x1="395.5"
+              y1="4"
+              x2="395.5"
+              y2="196"
+              stroke="#262322"
+              stroke-width="1"
+              stroke-dasharray="3 3"
+            />
+            <text class="chart-note" x="395.5" y="203" text-anchor="middle">
+              Brasil 78,1%
+            </text>
+
+            <text class="chart-label" x="122" y="26" text-anchor="end">Sul</text>
+            <path d="M130,8 H415 A4,4 0 0 1 419,12 V30 A4,4 0 0 1 415,34 H130 Z" fill="#7d4dac" />
+            <text class="chart-value" x="429" y="26">85,0</text>
+
+            <text class="chart-label" x="122" y="66" text-anchor="end">Sudeste</text>
+            <path d="M130,48 H403 A4,4 0 0 1 407,52 V70 A4,4 0 0 1 403,74 H130 Z" fill="#7d4dac" />
+            <text class="chart-value" x="417" y="66">81,5</text>
+
+            <text class="chart-label" x="122" y="106" text-anchor="end">Centro-Oeste</text>
+            <path d="M130,88 H388 A4,4 0 0 1 392,92 V110 A4,4 0 0 1 388,114 H130 Z" fill="#7d4dac" />
+            <text class="chart-value" x="402" y="106">77,0</text>
+
+            <text class="chart-label" x="122" y="146" text-anchor="end">Nordeste</text>
+            <path d="M130,128 H385 A4,4 0 0 1 389,132 V150 A4,4 0 0 1 385,154 H130 Z" fill="#7d4dac" />
+            <text class="chart-value" x="399" y="146">76,1</text>
+
+            <text class="chart-label" x="122" y="186" text-anchor="end">Norte</text>
+            <path d="M130,168 H341 A4,4 0 0 1 345,172 V190 A4,4 0 0 1 341,194 H130 Z" fill="#d1354a" />
+            <text class="chart-value" x="355" y="186" fill="#d1354a">63,3</text>
+          </svg>
+          <div class="legend">
+            <span><i style="background: #d1354a"></i>Norte</span>
+            <span><i style="background: #7d4dac"></i>Demais regiões</span>
+          </div>
+        </figure>
+      </div>
+
+      <p class="src">
+        Leitura: o Norte tem a <b>maior incidência</b> do país — 58% acima do
+        Sudeste — e a <b>menor cobertura de pré-natal</b>, 21,7 pontos abaixo do
+        Sul. Mais doença, menos acompanhamento.
+      </p>
+    </section>
+
+    <!-- ============ ANEXO C · POR QUE UM APP ============ -->
+    <section class="slide anexo">
+      <span class="badge">Anexo C · Dados</span>
+      <div class="rule"></div>
+      <p class="eyebrow">Por que um app resolve</p>
+      <h2>O celular já está na mão dela. O registro é que não existe.</h2>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="v">97%</div>
+          <div class="k">dos domicílios brasileiros têm celular</div>
+          <div class="s">PNAD Contínua TIC, IBGE, 2024</div>
+        </div>
+        <div class="stat">
+          <div class="v">93,6%</div>
+          <div class="k">dos domicílios têm acesso à internet</div>
+          <div class="s">PNAD Contínua TIC, IBGE, 2024</div>
+        </div>
+        <div class="stat">
+          <div class="v">84,3%</div>
+          <div class="k">acessam por banda larga móvel — o acesso é pelo celular</div>
+          <div class="s">PNAD Contínua TIC, IBGE, 2024</div>
+        </div>
+        <div class="stat dark">
+          <div class="v">77.079</div>
+          <div class="k">habitantes em Canaã dos Carajás</div>
+          <div class="s">IBGE, Censo 2022</div>
+        </div>
+      </div>
+
+      <div class="facts f3">
+        <p class="fact">
+          <b>99,4% → 78,1%</b>
+          <span
+            >é a queda entre a 1ª e a 7ª consulta de pré-natal no Brasil. Elas
+            começam o acompanhamento; o que falha é a continuidade — exatamente
+            o que um registro contínuo endereça.</span
+          >
+        </p>
+        <p class="fact">
+          <b>110,6 vs 57,7</b>
+          <span
+            >mortes maternas por 100 mil nascidos vivos: mulheres pretas morrem
+            quase o dobro da média nacional. O Brasil está em 56,4; a meta dos
+            ODS para 2030 é 30.</span
+          >
+        </p>
+        <p class="fact">
+          <b>19% vs 88,7%</b>
+          <span
+            >completam o pré-natal: indígenas sem escolaridade contra brancas com
+            12 anos ou mais de estudo.</span
+          >
+        </p>
+      </div>
+
+      <div class="sources">
+        <b>Fontes.</b> INCA, <i>Estimativa 2023 — Incidência de Câncer no
+        Brasil</i> (triênio 2023–2025) e Dados e Números sobre o Câncer do Colo
+        do Útero. OMS/Globocan 2022 e Estratégia Global de Eliminação do Câncer
+        do Colo do Útero (metas 90-70-90). Vigitel/Ministério da Saúde,
+        cobertura do exame citopatológico. SINASC/Ministério da Saúde, 2023,
+        analisado pelo Centro Internacional de Equidade em Saúde (UFPel) com a
+        Umane. Ministério da Saúde/SIM, mortalidade materna 2024. IBGE, PNAD
+        Contínua — módulo TIC, 2024, e Censo Demográfico 2022.
+      </div>
+    </section>
+
+    <!-- ============ ROTEIRO DE FALA ============ -->
+    <section class="slide script">
+      <h2>Roteiro de fala — 3 minutos</h2>
+      <p class="sub">
+        Página de apoio. Não projetar: use para ensaiar e cronometrar.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 110px">Tempo</th>
+            <th style="width: 190px">Bloco</th>
+            <th>O que dizer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="time">0:00 · 15s</td>
+            <td class="blk">Abertura</td>
+            <td>Frase de impacto. Pausa curta depois dela.</td>
+          </tr>
+          <tr>
+            <td class="time">0:15 · 25s</td>
+            <td class="blk">Problema</td>
+            <td>
+              O problema em duas frases, quem é afetado e onde. Não falar da
+              solução ainda.
+            </td>
+          </tr>
+          <tr>
+            <td class="time">0:40 · 30s</td>
+            <td class="blk">Solução</td>
+            <td>Registrar → lembrar → conversar. Uma frase por verbo.</td>
+          </tr>
+          <tr>
+            <td class="time">1:10 · 20s</td>
+            <td class="blk">Impacto</td>
+            <td>O que muda e como vamos medir.</td>
+          </tr>
+          <tr>
+            <td class="time">1:30 · 20s</td>
+            <td class="blk">Validação</td>
+            <td>Evidências da escuta e do teste. Dado concreto aqui.</td>
+          </tr>
+          <tr>
+            <td class="time">1:50 · 20s</td>
+            <td class="blk">Viabilidade</td>
+            <td>Como se sustenta e por que não é só mais um app de ciclo.</td>
+          </tr>
+          <tr>
+            <td class="time">2:10 · 25s</td>
+            <td class="blk">Protótipo</td>
+            <td>Demo ao vivo, quatro passos. Ensaiar até sair em 25s.</td>
+          </tr>
+          <tr>
+            <td class="time">2:35 · 15s</td>
+            <td class="blk">Próximos passos</td>
+            <td>Três passos e o pedido, dito com todas as letras.</td>
+          </tr>
+          <tr>
+            <td class="time">2:50 · 10s</td>
+            <td class="blk">Equipe</td>
+            <td>Nomes, competências e a frase de fechamento.</td>
+          </tr>
+          <tr class="total">
+            <td class="time">3:00</td>
+            <td class="blk">Total</td>
+            <td>Ensaiar com cronômetro. Cortar do bloco 6 se estourar.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </body>
+</html>

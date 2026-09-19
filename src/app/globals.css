@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+/*
+ * Design system — Canaã Delas AI
+ * Identidade: fusão Flo + Airbnb. Coral vivo (Flo #f75454 / Airbnb Rausch
+ * #FF5A5F), branco generoso e neutros à la Airbnb, cantos macios e sombras
+ * leves. Tipografia em par: Fraunces (serifada quente, para título e voz de
+ * marca) + Karla (humanista, para o texto corrido) — não a mesma geométrica
+ * em dois pesos que qualquer site gerado automaticamente escolheria.
+ */
+@theme {
+  /*
+   * UM PAPEL POR MATIZ. A regra que faltava.
+   *
+   * Antes existiam seis matizes soltos e nenhum sabia para que servia: o coral
+   * pintava botão, ícone decorativo, borda de cartão e fundo de aviso; o lilás
+   * aparecia em lugares que não tinham relação entre si. Cor espalhada assim
+   * não hierarquiza nada — só deixa a tela colorida.
+   *
+   *   plum    → marca e AÇÃO. Botão, link, foco, seleção. Nada decorativo.
+   *   clay    → pilar Assistente, e só ele.
+   *   sage    → semântica positiva: sucesso, confirmado, verificado.
+   *   danger  → semântica negativa: erro, exclusão, vencido.
+   *   pilares → orientação (qual das quatro áreas). Vêm de @core/pilares.
+   *
+   * Os valores de `plum` e `clay` são os MESMOS de `packages/core/pilares.ts`
+   * e do tema do app Expo. Antes não eram: a web renderizava #ff5a5f e o
+   * celular #ff5773 — dois corais para a mesma marca, em duas telas que a
+   * pessoa abre no mesmo dia.
+   */
+
+  /* Marca e ação — coral Flo (idêntico ao pilar Saúde e ao app) */
+  --color-plum-50: #fff0f3;
+  --color-plum-100: #ffd7df;
+  --color-plum-200: #ffc2ce;
+  --color-plum-300: #ff9fb1;
+  --color-plum-400: #ff8098;
+  --color-plum-500: #ff5773;
+  --color-plum-600: #e01f4d;
+  --color-plum-700: #c81a45;
+  --color-plum-800: #a8163a;
+  --color-plum-900: #8a122f;
+
+  /* Pilar Assistente — lilás (idêntico ao pilar IA e ao app) */
+  --color-clay-50: #f9f2fc;
+  --color-clay-100: #f2e6f8;
+  --color-clay-200: #e2c9ee;
+  --color-clay-300: #cda5e0;
+  --color-clay-400: #b06fcd;
+  --color-clay-500: #9c4bbb;
+  --color-clay-600: #8b2fa8;
+  --color-clay-700: #7d2a97;
+
+  /* Semântica positiva — sálvia. Só sucesso, nada de decoração. */
+  --color-sage-50: #f1f4ee;
+  --color-sage-100: #e2e8da;
+  --color-sage-200: #c5d0b6;
+  --color-sage-500: #6b7f57;
+  --color-sage-600: #566b45;
+
+  /*
+   * Semântica negativa. Existe como token porque antes 28 lugares usavam o
+   * `red-*` cru do Tailwind — um vermelho alaranjado que brigava com o coral
+   * da marca e não pertencia a sistema nenhum. Este é mais profundo e mais
+   * frio que o coral: lido lado a lado, dá para dizer qual é erro e qual é
+   * marca, que é a única coisa que esta cor precisa fazer.
+   */
+  --color-danger-50: #fdf2f2;
+  --color-danger-100: #fbe0e0;
+  --color-danger-200: #f5c2c2;
+  --color-danger-600: #c0392b;
+  --color-danger-700: #a12f24;
+  --color-danger-800: #82261d;
+
+  /* Neutros — branco + carvão quente + cinzas de linha (Airbnb) */
+  --color-paper: #ffffff;
+  --color-surface: #ffffff;
+  --color-mist: #f7f5f3;
+  --color-ink: #262322;
+  --color-muted: #726b67;
+  --color-line: #e6e2df;
+
+  /* Fundo de página — um branco quente, não o branco puro dos cartões.
+     Único valor: antes três telas cada uma escreviam sua própria aproximação
+     (#fcfaf8, #fbf8f6…), e a diferença entre elas — invisível isolada —
+     ficava visível na transição de uma tela para outra. */
+  --color-canvas: #fbf8f6;
+
+  --font-sans: var(--font-karla), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, "Times New Roman",
+    serif;
+
+  /*
+   * Escala de raio — cinco degraus, e nenhum valor fora dela.
+   *
+   * O comentário que estava aqui dizia "três níveis no total". Eram
+   * dezenove: 28px, 24px, 22px, 13px e mais um punhado de utilitários do
+   * Tailwind, cada tela tendo inventado o seu. Ninguém percebe um cartão de
+   * 22px ao lado de um de 24px isoladamente — percebe que a interface inteira
+   * parece montada por pessoas diferentes.
+   */
+  --radius-chip: 0.5rem; /* micro: caixinha de ícone, dia do calendário */
+  --radius-control: 0.75rem; /* botão retangular, campo, chip grande */
+  --radius-card: 1.25rem; /* cartão e painel */
+  --radius-frame: 2rem; /* moldura grande: cartão de login, arte do hero */
+
+  /* Sombra padrão de card (neutra, suave) */
+  --shadow-card: 0 14px 34px -24px rgba(58, 30, 37, 0.24);
+  --shadow-card-hover: 0 22px 44px -24px rgba(58, 30, 37, 0.32);
+}
+
+:root {
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Títulos em Fraunces. Peso 600 — não o 700 máximo em toda ocasião, que
+   é o hábito de quem escolhe UM peso e usa em tudo. Numa serifada com curva
+   orgânica, tracking apertado (herança da geometria da Manrope) esmaga a
+   respiração da letra; o valor aqui é neutro, e o hero da home ajusta o
+   próprio tracking com a classe arbitrária que já usa, mais solta. */
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.006em;
+}
+
+::selection {
+  background: var(--color-plum-200);
+  color: var(--color-plum-900);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border: 3px solid var(--background);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-plum-200);
+}
+
+/* Faixas de navegação em mobile continuam roláveis sem adicionar uma barra
+   visual que disputa atenção com o conteúdo. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Impressão: esconde a navegação e mostra só o conteúdo (relatório). */
+@media print {
+  aside,
+  header,
+  nav.fixed,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  main {
+    padding: 0 !important;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Refinamentos de acabamento (acessibilidade e consistência)
+   --------------------------------------------------------------- */
+
+/* Foco visível em TODO elemento interativo — navegação por teclado.
+   Usa :focus-visible para não poluir o clique de mouse. */
+:where(a, button, [role="button"], summary):focus-visible {
+  outline: 2px solid var(--color-plum-600);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Números em colunas e métricas: largura fixa por dígito, evitando
+   o "pulo" de largura quando o valor muda. */
+.num,
+th[data-num],
+td[data-num] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Indicador de "digitando" da assistente — três pontos subindo em sequência.
+   Easing exponencial (não a curva elástica do bounce padrão): o ponto sobe
+   rápido e desacelera suavemente, como um objeto real, em vez de quicar. */
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+.animate-typing-dot {
+  animation: typing-dot 1.1s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Reduz movimento para quem pediu essa preferência no sistema. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,1803 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Canaã Delas AI — Documentação Técnica</title>
+<style>
+  :root {
+    --ink: #262322;
+    --muted: #6b6360;
+    --rule: #ddd8d4;
+    --accent: #ef4a57;
+    --accent-soft: #fff1f1;
+    --lilac: #9564c4;
+    --mist: #f7f5f3;
+  }
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, h4,
+  .cover-title, .kicker, th, figcaption, code, .badge, .toc {
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  }
+
+  h1 {
+    font-size: 19pt;
+    letter-spacing: -0.01em;
+    margin: 0 0 2mm;
+    padding-bottom: 2mm;
+    border-bottom: 2px solid var(--accent);
+  }
+  h2 { font-size: 13pt; margin: 8mm 0 2mm; }
+  h3 { font-size: 11pt; margin: 6mm 0 1.5mm; color: #3d3835; }
+  h4 { font-size: 10pt; margin: 4mm 0 1mm; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+  p { margin: 0 0 3mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1mm; }
+
+  code {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 9pt;
+    background: var(--mist);
+    padding: 0.5mm 1.2mm;
+    border-radius: 2px;
+  }
+  pre {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 8.5pt;
+    line-height: 1.45;
+    background: var(--mist);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    padding: 3mm 4mm;
+    margin: 0 0 4mm;
+    white-space: pre-wrap;
+    break-inside: avoid;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    margin: 0 0 4mm;
+    break-inside: avoid;
+  }
+  th {
+    text-align: left;
+    background: var(--mist);
+    border-bottom: 1.5px solid var(--rule);
+    padding: 1.6mm 2mm;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #4a4340;
+  }
+  td {
+    border-bottom: 1px solid var(--rule);
+    padding: 1.6mm 2mm;
+    vertical-align: top;
+  }
+  td code { font-size: 8.2pt; background: none; padding: 0; }
+
+  figure {
+    margin: 0 0 5mm;
+    break-inside: avoid;
+    text-align: center;
+  }
+  figure svg { max-width: 100%; height: auto; }
+  svg text { font-family: "Segoe UI", Arial, sans-serif; }
+  figcaption {
+    font-size: 8.5pt;
+    color: var(--muted);
+    margin-top: 1.5mm;
+    text-align: left;
+    padding-left: 1mm;
+    border-left: 2px solid var(--rule);
+  }
+
+  .page-break { break-before: page; }
+
+  /* ---------- Capa ---------- */
+  .cover {
+    height: 250mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    break-after: page;
+  }
+  .cover-mark { display: flex; align-items: center; gap: 3mm; }
+  .cover-mark span { font-family: "Segoe UI", sans-serif; font-size: 14pt; font-weight: 600; }
+  .cover-title {
+    font-size: 34pt;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+  .cover-title em { font-style: normal; color: var(--accent); }
+  .cover-sub { font-size: 12pt; color: var(--muted); margin-top: 5mm; max-width: 120mm; }
+  .kicker {
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: .22em;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .cover-meta { font-size: 9pt; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 3mm; }
+  .cover-meta table { font-size: 9pt; margin: 0; }
+  .cover-meta td { border: none; padding: 0.8mm 0; }
+  .cover-meta td:first-child { color: var(--muted); width: 34mm; }
+
+  /* ---------- Componentes ---------- */
+  .toc { font-size: 10pt; }
+  .toc ol { list-style: none; padding-left: 0; counter-reset: sec; }
+  .toc ol li { counter-increment: sec; padding: 1.2mm 0; border-bottom: 1px dotted var(--rule); }
+  .toc ol li::before { content: counter(sec) ". "; color: var(--accent); font-weight: 600; }
+  .toc ol ol { padding-left: 8mm; margin-top: 1mm; counter-reset: sub; }
+  .toc ol ol li { border: none; padding: 0.5mm 0; color: var(--muted); font-size: 9pt; counter-increment: sub; }
+  .toc ol ol li::before { content: ""; }
+
+  .note {
+    background: var(--accent-soft);
+    border: 1px solid #ffd4d6;
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    padding: 3mm 4mm;
+    margin: 0 0 4mm;
+    font-size: 9.5pt;
+    break-inside: avoid;
+  }
+  .note strong { color: #a82b3d; }
+  .note.neutral { background: var(--mist); border-color: var(--rule); border-left-color: var(--lilac); }
+  .note.neutral strong { color: #643c88; }
+
+  .badge {
+    display: inline-block;
+    font-size: 7.5pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 0.6mm 1.8mm;
+    border-radius: 3px;
+    background: var(--mist);
+    color: #4a4340;
+    border: 1px solid var(--rule);
+  }
+  .badge.ok { background: #eef6ea; color: #3f6b2f; border-color: #cfe3c4; }
+  .badge.wip { background: #fff6e6; color: #8a5a00; border-color: #f2e0bd; }
+  .badge.ext { background: #f3ecfb; color: #643c88; border-color: #ddcbf2; }
+
+  .uc {
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 0;
+    margin: 0 0 4mm;
+    break-inside: avoid;
+    font-size: 9pt;
+  }
+  .uc-head {
+    background: var(--mist);
+    padding: 1.8mm 3mm;
+    font-family: "Segoe UI", sans-serif;
+    font-weight: 600;
+    border-bottom: 1px solid var(--rule);
+  }
+  .uc-head span { color: var(--accent); }
+  .uc-body { padding: 2.5mm 3mm; }
+  .uc-body dl { margin: 0; display: grid; grid-template-columns: 26mm 1fr; gap: 1mm 2mm; }
+  .uc-body dt { color: var(--muted); font-family: "Segoe UI", sans-serif; font-size: 8.5pt; }
+  .uc-body dd { margin: 0; }
+  .uc-body ol { padding-left: 5mm; margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ CAPA ============ -->
+<section class="cover">
+  <div>
+    <div class="cover-mark">
+      <svg width="34" height="34" viewBox="0 0 24 24" role="img" aria-label="Marca Canaã Delas">
+        <g fill="#ef4a57">
+          <path d="M12 12 C 10.1 8 10.1 4.2 12 1.5 C 13.9 4.2 13.9 8 12 12 Z"/>
+          <path d="M12 12 C 10.1 8 10.1 4.2 12 1.5 C 13.9 4.2 13.9 8 12 12 Z" transform="rotate(72 12 12)" opacity=".82"/>
+          <path d="M12 12 C 10.1 8 10.1 4.2 12 1.5 C 13.9 4.2 13.9 8 12 12 Z" transform="rotate(144 12 12)"/>
+          <path d="M12 12 C 10.1 8 10.1 4.2 12 1.5 C 13.9 4.2 13.9 8 12 12 Z" transform="rotate(216 12 12)" opacity=".82"/>
+          <path d="M12 12 C 10.1 8 10.1 4.2 12 1.5 C 13.9 4.2 13.9 8 12 12 Z" transform="rotate(288 12 12)"/>
+        </g>
+        <circle cx="12" cy="12" r="2.15" fill="#9564c4"/>
+      </svg>
+      <span>Canaã Delas</span>
+    </div>
+  </div>
+
+  <div>
+    <p class="kicker">Documentação Técnica</p>
+    <h1 class="cover-title" style="border:none; padding:0;">Canaã Delas <em>AI</em></h1>
+    <p class="cover-sub">
+      Plataforma de saúde feminina para Canaã dos Carajás — arquitetura,
+      modelo de domínio, casos de uso e especificação da camada de
+      Inteligência Artificial.
+    </p>
+  </div>
+
+  <div class="cover-meta">
+    <table>
+      <tr><td>Documento</td><td>Documentação Técnica — Versão 1.0</td></tr>
+      <tr><td>Produto</td><td>Canaã Delas AI (<code>canaa-delas-ai</code> v0.1.0)</td></tr>
+      <tr><td>Plataforma</td><td>Aplicação web responsiva (Next.js 15 · App Router)</td></tr>
+      <tr><td>Município</td><td>Canaã dos Carajás — Pará, Brasil</td></tr>
+      <tr><td>Data de emissão</td><td>05 de agosto de 2026</td></tr>
+      <tr><td>Classificação</td><td>Documento interno de engenharia</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ SUMÁRIO ============ -->
+<section>
+  <h1>Sumário</h1>
+  <div class="toc">
+    <ol>
+      <li>Visão geral do produto
+        <ol><li>Objetivo, escopo e público-alvo</li><li>Proposta de valor</li></ol>
+      </li>
+      <li>Requisitos
+        <ol><li>Requisitos funcionais</li><li>Requisitos não funcionais</li></ol>
+      </li>
+      <li>Arquitetura da solução
+        <ol><li>Visão em camadas</li><li>Stack tecnológico</li><li>Organização do código</li></ol>
+      </li>
+      <li>Modelo de domínio
+        <ol><li>Diagrama de classes — núcleo de saúde</li><li>Diagrama de classes — assistente</li><li>Dicionário de dados</li><li>Decisões de modelagem</li></ol>
+      </li>
+      <li>Casos de uso
+        <ol><li>Diagrama de casos de uso</li><li>Especificação dos casos principais</li></ol>
+      </li>
+      <li>Comportamento e fluxos
+        <ol><li>Sequência — autenticação</li><li>Sequência — conversa com a assistente</li><li>Estados — fases do ciclo menstrual</li><li>Mapa de navegação</li></ol>
+      </li>
+      <li>Camada de Inteligência Artificial</li>
+      <li>Algoritmos de domínio</li>
+      <li>Segurança, privacidade e conformidade</li>
+      <li>Interfaces de programação</li>
+      <li>Qualidade e verificação</li>
+      <li>Implantação e operação</li>
+      <li>Limitações conhecidas e evolução</li>
+      <li>Glossário</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 1. VISÃO GERAL ============ -->
+<section class="page-break">
+  <h1>1. Visão geral do produto</h1>
+
+  <h2>1.1 Objetivo, escopo e público-alvo</h2>
+  <p>
+    O <strong>Canaã Delas AI</strong> é uma plataforma digital de saúde feminina
+    concebida para a realidade das mulheres de Canaã dos Carajás (PA). O sistema
+    reúne, em um único ambiente autenticado, o acompanhamento do ciclo menstrual,
+    da gestação, do bem-estar emocional e da prevenção em saúde, somados a uma
+    camada de Inteligência Artificial que personaliza orientações a partir dos
+    registros da própria usuária.
+  </p>
+
+  <table>
+    <tr><th style="width:32mm">Dimensão</th><th>Definição</th></tr>
+    <tr><td>Público primário</td><td>Mulheres em idade reprodutiva residentes em Canaã dos Carajás.</td></tr>
+    <tr><td>Público secundário</td><td>Gestão pública municipal (dados agregados anonimizados) e parceiros de saúde.</td></tr>
+    <tr><td>Escopo desta versão</td><td>Aplicação web responsiva, multiusuária, com persistência local e assistente conversacional.</td></tr>
+    <tr><td>Fora de escopo</td><td>Aplicativo nativo, prontuário eletrônico, telemedicina, prescrição e agendamento no SUS.</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>Natureza do produto.</strong> O sistema é uma ferramenta de
+    <em>autoconhecimento e organização pessoal em saúde</em>. Não é dispositivo
+    médico, não realiza diagnóstico e não substitui avaliação por profissional
+    de saúde. Essa restrição é aplicada em nível de produto (avisos nas telas) e
+    de engenharia (instruções explícitas no <em>prompt</em> da assistente).
+  </div>
+
+  <h2>1.2 Proposta de valor</h2>
+  <table>
+    <tr><th style="width:44mm">Eixo</th><th>Entrega</th></tr>
+    <tr><td>Autoconhecimento</td><td>Previsão de ciclo, fase atual, janela fértil e estatísticas de regularidade.</td></tr>
+    <tr><td>Prevenção</td><td>Lembretes de exames, guia de autoexame das mamas e checklist por faixa etária.</td></tr>
+    <tr><td>Personalização por IA</td><td>Assistente que conhece os registros da usuária e acumula memória de longo prazo.</td></tr>
+    <tr><td>Vínculo com o território</td><td>Serviços públicos do SUS, campanhas municipais e rede de apoio local.</td></tr>
+    <tr><td>Autonomia sobre os dados</td><td>Exportação integral, exclusão de conta e gestão da memória da assistente.</td></tr>
+  </table>
+</section>
+
+<!-- ============ 2. REQUISITOS ============ -->
+<section class="page-break">
+  <h1>2. Requisitos</h1>
+
+  <h2>2.1 Requisitos funcionais</h2>
+  <p>Situação de implementação na versão 1.0:
+    <span class="badge ok">Implementado</span>
+    <span class="badge wip">Parcial / planejado</span>
+    <span class="badge ext">Requer serviço externo</span>
+  </p>
+
+  <table>
+    <tr><th style="width:16mm">ID</th><th>Requisito</th><th style="width:26mm">Situação</th></tr>
+    <tr><td><code>RF-01</code></td><td>Cadastro e autenticação por e-mail e senha</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-02</code></td><td>Onboarding com definição de objetivo pessoal</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-03</code></td><td>Registro de ciclos menstruais com fluxo e sintomas</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-04</code></td><td>Calendário visual com menstruação, previsão, janela fértil e ovulação</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-05</code></td><td>Cálculo de fase do ciclo e estatísticas de regularidade</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-06</code></td><td>Acompanhamento gestacional com idade gestacional, DPP e marcos</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-07</code></td><td>Registro de humor e check-in diário (energia, sono, dor, sintomas)</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-08</code></td><td>Lembretes de exames, consultas e medicação</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-09</code></td><td>Registro de medidas de saúde (peso, pressão, glicemia, temperatura basal)</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-10</code></td><td>Controle diário de anticoncepcional com adesão e sequência</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-11</code></td><td>Guia e registro do autoexame das mamas</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-12</code></td><td>Biblioteca de conteúdo educativo</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-13</code></td><td>Diretório de serviços públicos e rede de apoio</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-14</code></td><td>Insights automáticos derivados dos registros</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-15</code></td><td>Relatório consolidado para consulta médica (imprimível)</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-16</code></td><td>Metas, sequências e conquistas de engajamento</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-17</code></td><td>Assistente conversacional com contexto isolado por conversa</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-18</code></td><td>Memória de longo prazo da assistente, visível e removível</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-19</code></td><td>Exportação integral e exclusão definitiva dos dados</td><td><span class="badge ok">Implementado</span></td></tr>
+    <tr><td><code>RF-20</code></td><td>PIN de bloqueio do aplicativo</td><td><span class="badge wip">Parcial</span></td></tr>
+    <tr><td><code>RF-21</code></td><td>Notificações <em>push</em> de lembretes</td><td><span class="badge wip">Planejado</span></td></tr>
+    <tr><td><code>RF-22</code></td><td>Assinatura Premium com pagamento</td><td><span class="badge ext">Externo</span></td></tr>
+    <tr><td><code>RF-23</code></td><td><em>Marketplace</em> e rede de parceiros</td><td><span class="badge ext">Externo</span></td></tr>
+    <tr><td><code>RF-24</code></td><td>Painel de indicadores para gestão pública</td><td><span class="badge wip">Planejado</span></td></tr>
+  </table>
+
+  <h2>2.2 Requisitos não funcionais</h2>
+  <table>
+    <tr><th style="width:16mm">ID</th><th>Categoria</th><th>Requisito</th></tr>
+    <tr><td><code>RNF-01</code></td><td>Segurança</td><td>Senhas e PIN armazenados exclusivamente como <em>hash</em> bcrypt (fator 10).</td></tr>
+    <tr><td><code>RNF-02</code></td><td>Segurança</td><td>Toda leitura e escrita filtrada pelo <code>userId</code> da sessão — isolamento entre usuárias.</td></tr>
+    <tr><td><code>RNF-03</code></td><td>Segurança</td><td>Rotas sob <code>/painel</code> protegidas por <em>middleware</em> no <em>edge</em>.</td></tr>
+    <tr><td><code>RNF-04</code></td><td>Privacidade</td><td>Direito de acesso e eliminação atendidos por autoatendimento (LGPD).</td></tr>
+    <tr><td><code>RNF-05</code></td><td>Usabilidade</td><td>Interface responsiva, em português do Brasil, com navegação inferior no <em>mobile</em>.</td></tr>
+    <tr><td><code>RNF-06</code></td><td>Acessibilidade</td><td>HTML semântico, rótulos associados a campos e foco visível em elementos interativos.</td></tr>
+    <tr><td><code>RNF-07</code></td><td>Manutenibilidade</td><td>TypeScript em modo <em>strict</em>; validação de entrada centralizada em esquemas Zod.</td></tr>
+    <tr><td><code>RNF-08</code></td><td>Desempenho</td><td>Renderização no servidor por padrão; <em>JavaScript</em> compartilhado de ~103 kB.</td></tr>
+    <tr><td><code>RNF-09</code></td><td>Portabilidade</td><td>Modelagem sem recursos exclusivos do SQLite, permitindo migração a PostgreSQL.</td></tr>
+    <tr><td><code>RNF-10</code></td><td>Resiliência</td><td>Falha na camada de IA não impede o uso das demais funcionalidades.</td></tr>
+    <tr><td><code>RNF-11</code></td><td>Segurança clínica</td><td>Vedação explícita a diagnóstico e prescrição; encaminhamento a serviço de saúde.</td></tr>
+  </table>
+</section>
+
+<!-- ============ 3. ARQUITETURA ============ -->
+<section class="page-break">
+  <h1>3. Arquitetura da solução</h1>
+
+  <h2>3.1 Visão em camadas</h2>
+  <p>
+    A aplicação adota arquitetura monolítica modular sobre o <em>App Router</em>
+    do Next.js. A renderização ocorre predominantemente no servidor
+    (<em>React Server Components</em>); as mutações trafegam por
+    <em>Server Actions</em>, e apenas o <em>streaming</em> da assistente utiliza
+    um <em>Route Handler</em> HTTP convencional, por exigir resposta progressiva.
+  </p>
+
+  <figure>
+    <svg viewBox="0 0 760 500" role="img" aria-label="Arquitetura em camadas: navegador, middleware no edge, servidor Next.js com componentes e ações, camada de acesso a dados Prisma, banco SQLite, e a API da OpenAI como serviço externo">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#262322"/>
+        </marker>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#9564c4"/>
+        </marker>
+      </defs>
+
+      <!-- Camada 1: Cliente -->
+      <rect x="20" y="18" width="480" height="86" rx="8" fill="#f7f5f3" stroke="#ddd8d4"/>
+      <text x="32" y="38" font-size="10" fill="#6b6360" letter-spacing="1">CLIENTE (NAVEGADOR)</text>
+      <rect x="34" y="48" width="132" height="42" rx="5" fill="#fff" stroke="#ddd8d4"/>
+      <text x="100" y="66" font-size="11.5" text-anchor="middle">Componentes de UI</text>
+      <text x="100" y="80" font-size="9.5" fill="#6b6360" text-anchor="middle">design system</text>
+      <rect x="178" y="48" width="132" height="42" rx="5" fill="#fff" stroke="#ddd8d4"/>
+      <text x="244" y="66" font-size="11.5" text-anchor="middle">Formulários</text>
+      <text x="244" y="80" font-size="9.5" fill="#6b6360" text-anchor="middle">useActionState</text>
+      <rect x="322" y="48" width="160" height="42" rx="5" fill="#fff" stroke="#ef4a57"/>
+      <text x="402" y="66" font-size="11.5" text-anchor="middle" fill="#c93140">ChatWindow</text>
+      <text x="402" y="80" font-size="9.5" fill="#6b6360" text-anchor="middle">consome stream</text>
+
+      <!-- Camada 2: Middleware -->
+      <rect x="20" y="128" width="480" height="46" rx="8" fill="#fff" stroke="#ddd8d4"/>
+      <text x="32" y="148" font-size="10" fill="#6b6360" letter-spacing="1">EDGE</text>
+      <text x="260" y="158" font-size="11.5" text-anchor="middle">middleware.ts — autoriza /painel · auth.config.ts (sem Node)</text>
+
+      <!-- Camada 3: Servidor -->
+      <rect x="20" y="198" width="480" height="128" rx="8" fill="#f7f5f3" stroke="#ddd8d4"/>
+      <text x="32" y="218" font-size="10" fill="#6b6360" letter-spacing="1">SERVIDOR NEXT.JS (NODE)</text>
+      <rect x="34" y="228" width="140" height="40" rx="5" fill="#fff" stroke="#ddd8d4"/>
+      <text x="104" y="245" font-size="11" text-anchor="middle">Server Components</text>
+      <text x="104" y="259" font-size="9.5" fill="#6b6360" text-anchor="middle">leitura (queries.ts)</text>
+      <rect x="186" y="228" width="140" height="40" rx="5" fill="#fff" stroke="#ddd8d4"/>
+      <text x="256" y="245" font-size="11" text-anchor="middle">Server Actions</text>
+      <text x="256" y="259" font-size="9.5" fill="#6b6360" text-anchor="middle">escrita + Zod</text>
+      <rect x="338" y="228" width="144" height="40" rx="5" fill="#fff" stroke="#ef4a57"/>
+      <text x="410" y="245" font-size="11" text-anchor="middle" fill="#c93140">Route Handlers</text>
+      <text x="410" y="259" font-size="9.5" fill="#6b6360" text-anchor="middle">/api/chat · /api/export</text>
+
+      <rect x="34" y="278" width="448" height="36" rx="5" fill="#fff" stroke="#ddd8d4"/>
+      <text x="258" y="295" font-size="11" text-anchor="middle">Domínio · utils.ts (previsões) · insights.ts · chat-context.ts</text>
+      <text x="258" y="308" font-size="9" fill="#6b6360" text-anchor="middle">funções puras, sem dependência de banco ou rede</text>
+
+      <!-- Camada 4: Dados -->
+      <rect x="20" y="350" width="480" height="46" rx="8" fill="#fff" stroke="#ddd8d4"/>
+      <text x="32" y="370" font-size="10" fill="#6b6360" letter-spacing="1">PERSISTÊNCIA</text>
+      <text x="260" y="380" font-size="11.5" text-anchor="middle">Prisma Client (<tspan font-family="Consolas,monospace" font-size="10">db.ts</tspan> — singleton)</text>
+
+      <rect x="150" y="420" width="220" height="46" rx="8" fill="#f7f5f3" stroke="#ddd8d4"/>
+      <text x="260" y="441" font-size="11.5" text-anchor="middle">SQLite — dev.db</text>
+      <text x="260" y="455" font-size="9" fill="#6b6360" text-anchor="middle">migrável para PostgreSQL</text>
+
+      <!-- Serviço externo -->
+      <rect x="546" y="198" width="192" height="128" rx="8" fill="#f3ecfb" stroke="#9564c4" stroke-dasharray="5 3"/>
+      <text x="642" y="218" font-size="10" fill="#643c88" letter-spacing="1" text-anchor="middle">SERVIÇO EXTERNO</text>
+      <rect x="560" y="232" width="164" height="44" rx="5" fill="#fff" stroke="#9564c4"/>
+      <text x="642" y="250" font-size="11.5" text-anchor="middle" fill="#643c88">API da OpenAI</text>
+      <text x="642" y="264" font-size="9.5" fill="#6b6360" text-anchor="middle">chat/completions</text>
+      <text x="642" y="296" font-size="9" fill="#6b6360" text-anchor="middle">gpt-4o-mini</text>
+      <text x="642" y="309" font-size="9" fill="#6b6360" text-anchor="middle">SSE · streaming</text>
+
+      <!-- Fluxos verticais -->
+      <line x1="260" y1="104" x2="260" y2="126" stroke="#262322" marker-end="url(#a1)"/>
+      <line x1="260" y1="174" x2="260" y2="196" stroke="#262322" marker-end="url(#a1)"/>
+      <line x1="260" y1="326" x2="260" y2="348" stroke="#262322" marker-end="url(#a1)"/>
+      <line x1="260" y1="396" x2="260" y2="418" stroke="#262322" marker-end="url(#a1)"/>
+      <text x="270" y="119" font-size="9" fill="#6b6360">requisição</text>
+      <text x="270" y="189" font-size="9" fill="#6b6360">sessão válida</text>
+      <text x="270" y="341" font-size="9" fill="#6b6360">consulta tipada</text>
+      <text x="270" y="411" font-size="9" fill="#6b6360">SQL</text>
+
+      <!-- OpenAI -->
+      <line x1="484" y1="248" x2="544" y2="248" stroke="#9564c4" marker-end="url(#a2)"/>
+      <text x="514" y="242" font-size="8.5" fill="#643c88" text-anchor="middle">prompt</text>
+      <line x1="544" y1="262" x2="484" y2="262" stroke="#9564c4" marker-end="url(#a2)"/>
+      <text x="514" y="275" font-size="8.5" fill="#643c88" text-anchor="middle">tokens</text>
+
+      <!-- Stream de volta ao cliente -->
+      <path d="M 500 78 L 700 78 L 700 190" fill="none" stroke="#ef4a57" stroke-dasharray="4 3" marker-end="url(#a1)"/>
+      <text x="612" y="72" font-size="8.5" fill="#c93140" text-anchor="middle">stream de texto ao navegador</text>
+    </svg>
+    <figcaption>
+      <strong>Figura 1 — Arquitetura em camadas.</strong> A requisição atravessa o
+      <em>middleware</em> antes de alcançar o servidor; o domínio é isolado em funções
+      puras. A API da OpenAI é o único serviço externo, acionado exclusivamente pelo
+      <em>Route Handler</em> <code>/api/chat</code>, cuja resposta retorna ao navegador
+      em <em>streaming</em>.
+    </figcaption>
+  </figure>
+
+  <h2>3.2 Stack tecnológico</h2>
+  <table>
+    <tr><th style="width:36mm">Camada</th><th style="width:44mm">Tecnologia</th><th style="width:22mm">Versão</th><th>Justificativa</th></tr>
+    <tr><td>Runtime</td><td>Node.js</td><td>24.12</td><td>Suporte nativo a <em>streams</em> web e <code>fetch</code>.</td></tr>
+    <tr><td>Framework</td><td>Next.js (App Router)</td><td>15.5.22</td><td>Renderização no servidor, <em>Server Actions</em> e roteamento por arquivos.</td></tr>
+    <tr><td>Interface</td><td>React</td><td>19.0</td><td><code>useActionState</code> e <code>useFormStatus</code> para formulários progressivos.</td></tr>
+    <tr><td>Linguagem</td><td>TypeScript (strict)</td><td>5.7</td><td>Contratos verificados em tempo de compilação.</td></tr>
+    <tr><td>Estilo</td><td>Tailwind CSS</td><td>4.0</td><td><em>Design tokens</em> em CSS nativo via <code>@theme</code>.</td></tr>
+    <tr><td>Persistência</td><td>Prisma ORM + SQLite</td><td>6.x</td><td>Cliente tipado gerado a partir do <em>schema</em>.</td></tr>
+    <tr><td>Autenticação</td><td>Auth.js (NextAuth) + bcryptjs</td><td>5.0-beta</td><td>Sessão por JWT compatível com <em>edge</em>.</td></tr>
+    <tr><td>Validação</td><td>Zod</td><td>3.24</td><td>Esquema único como fonte de verdade e de tipos.</td></tr>
+    <tr><td>IA</td><td>API da OpenAI</td><td>gpt-4o-mini</td><td>Acesso via <code>fetch</code>, sem SDK, reduzindo dependências.</td></tr>
+  </table>
+
+  <h2>3.3 Organização do código</h2>
+  <pre>src/
+├── app/                          Roteamento (App Router)
+│   ├── (auth)/                   Grupo público: login, cadastro
+│   ├── (dashboard)/painel/       Grupo autenticado: 20 telas
+│   ├── api/                      Route Handlers
+│   │   ├── auth/[...nextauth]/   Endpoints do Auth.js
+│   │   ├── chat/                 Streaming da assistente
+│   │   ├── export/               Exportação de dados (LGPD)
+│   │   └── logout/               Encerramento de sessão órfã
+│   ├── comecar/                  Onboarding
+│   ├── layout.tsx                Layout raiz, fontes e metadados
+│   └── globals.css               Design tokens (@theme)
+├── components/
+│   ├── ui/                       Design system (Button, Card, Icon…)
+│   ├── layout/                   Sidebar, cabeçalho, marca
+│   ├── auth/                     Formulários de autenticação
+│   └── features/                 Formulários e widgets de domínio
+├── server/
+│   ├── actions/                  Mutações (Server Actions) por domínio
+│   └── queries.ts                Leituras reutilizáveis
+├── lib/
+│   ├── auth.ts / session.ts      Autenticação e guarda de sessão
+│   ├── db.ts                     Prisma Client (singleton)
+│   ├── utils.ts                  Datas, previsões, estatísticas
+│   ├── insights.ts               Geração de insights
+│   ├── openai.ts                 Cliente da OpenAI + streaming
+│   ├── chat-context.ts           Prompt de sistema e memória
+│   ├── validations.ts            Esquemas Zod
+│   └── constants.ts              Enumerações de domínio
+├── auth.config.ts                Configuração compatível com edge
+└── middleware.ts                 Proteção de rotas</pre>
+
+  <div class="note neutral">
+    <strong>Separação leitura / escrita.</strong> Consultas residem em
+    <code>server/queries.ts</code> e são chamadas diretamente por
+    <em>Server Components</em>; mutações residem em <code>server/actions/</code>,
+    sempre validando a entrada com Zod e invalidando o cache com
+    <code>revalidatePath</code>. A divisão mantém as funções de leitura
+    reutilizáveis e testáveis sem o ciclo de vida de uma ação.
+  </div>
+</section>
+
+<!-- ============ 4. MODELO DE DOMÍNIO ============ -->
+<section class="page-break">
+  <h1>4. Modelo de domínio</h1>
+  <p>
+    O domínio é composto por doze entidades persistidas. <code>User</code> é a
+    raiz de agregação: todas as demais entidades pertencem a exatamente uma
+    usuária e são eliminadas em cascata com ela
+    (<code>onDelete: Cascade</code>). Para legibilidade, o modelo é apresentado
+    em duas figuras — o núcleo de saúde e a camada da assistente.
+  </p>
+
+  <h2>4.1 Diagrama de classes — núcleo de saúde</h2>
+  <figure>
+    <svg viewBox="0 0 780 620" role="img" aria-label="Diagrama de classes do núcleo de saúde: a entidade User relaciona-se com CycleEntry, MoodEntry, DailyLog, HealthMetric, PillLog, SelfExamLog e Reminder em cardinalidade um para muitos, e com Pregnancy em um para zero ou um">
+      <defs>
+        <marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#262322"/>
+        </marker>
+      </defs>
+
+      <!-- User -->
+      <rect x="278" y="16" width="224" height="150" rx="4" fill="#fff1f1" stroke="#ef4a57" stroke-width="1.5"/>
+      <rect x="278" y="16" width="224" height="24" rx="4" fill="#ef4a57"/>
+      <text x="390" y="33" font-size="13" font-weight="600" fill="#fff" text-anchor="middle">User</text>
+      <text x="288" y="56" font-size="10">+ id : String &lt;&lt;PK, cuid&gt;&gt;</text>
+      <text x="288" y="70" font-size="10">+ name : String</text>
+      <text x="288" y="84" font-size="10">+ email : String &lt;&lt;unique&gt;&gt;</text>
+      <text x="288" y="98" font-size="10">− passwordHash : String</text>
+      <text x="288" y="112" font-size="10">− pinHash : String?</text>
+      <text x="288" y="126" font-size="10">+ birthDate : DateTime?</text>
+      <text x="288" y="140" font-size="10">+ goal : String?</text>
+      <text x="288" y="154" font-size="10">+ onboardedAt : DateTime?</text>
+
+      <!-- Linha 1 de entidades -->
+      <rect x="16" y="230" width="168" height="96" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="16" y="230" width="168" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="100" y="246" font-size="11.5" font-weight="600" text-anchor="middle">CycleEntry</text>
+      <text x="24" y="268" font-size="9.5">+ startDate : DateTime</text>
+      <text x="24" y="281" font-size="9.5">+ endDate : DateTime?</text>
+      <text x="24" y="294" font-size="9.5">+ flow : String?</text>
+      <text x="24" y="307" font-size="9.5">+ symptoms : String?</text>
+      <text x="24" y="320" font-size="9.5">+ notes : String?</text>
+
+      <rect x="206" y="230" width="168" height="96" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="206" y="230" width="168" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="290" y="246" font-size="11.5" font-weight="600" text-anchor="middle">Pregnancy</text>
+      <text x="214" y="268" font-size="9.5">+ lastPeriodDate : DateTime</text>
+      <text x="214" y="281" font-size="9.5">+ dueDate : DateTime?</text>
+      <text x="214" y="294" font-size="9.5">+ active : Boolean</text>
+      <text x="214" y="307" font-size="9.5">+ notes : String?</text>
+      <text x="214" y="320" font-size="9" fill="#6b6360">&lt;&lt;userId unique&gt;&gt;</text>
+
+      <rect x="396" y="230" width="168" height="96" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="396" y="230" width="168" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="480" y="246" font-size="11.5" font-weight="600" text-anchor="middle">MoodEntry</text>
+      <text x="404" y="268" font-size="9.5">+ date : DateTime</text>
+      <text x="404" y="281" font-size="9.5">+ mood : String</text>
+      <text x="404" y="294" font-size="9.5">+ intensity : Int (1–5)</text>
+      <text x="404" y="307" font-size="9.5">+ note : String?</text>
+
+      <rect x="586" y="230" width="178" height="96" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="586" y="230" width="178" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="675" y="246" font-size="11.5" font-weight="600" text-anchor="middle">DailyLog</text>
+      <text x="594" y="268" font-size="9.5">+ date : DateTime</text>
+      <text x="594" y="281" font-size="9.5">+ energy : Int?  + pain : Int?</text>
+      <text x="594" y="294" font-size="9.5">+ sleepHours : Float?</text>
+      <text x="594" y="307" font-size="9.5">+ symptoms : String?</text>
+      <text x="594" y="320" font-size="9.5">+ note : String?</text>
+
+      <!-- Linha 2 de entidades -->
+      <rect x="16" y="428" width="168" height="88" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="16" y="428" width="168" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="100" y="444" font-size="11.5" font-weight="600" text-anchor="middle">HealthMetric</text>
+      <text x="24" y="466" font-size="9.5">+ date : DateTime</text>
+      <text x="24" y="479" font-size="9.5">+ type : String</text>
+      <text x="24" y="492" font-size="9.5">+ value : Float</text>
+      <text x="24" y="505" font-size="9.5">+ value2 : Float?</text>
+
+      <rect x="206" y="428" width="168" height="88" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="206" y="428" width="168" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="290" y="444" font-size="11.5" font-weight="600" text-anchor="middle">PillLog</text>
+      <text x="214" y="466" font-size="9.5">+ date : DateTime</text>
+      <text x="214" y="479" font-size="9.5">+ taken : Boolean</text>
+      <text x="214" y="497" font-size="9" fill="#6b6360">&lt;&lt;unique(userId, date)&gt;&gt;</text>
+
+      <rect x="396" y="428" width="168" height="88" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="396" y="428" width="168" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="480" y="444" font-size="11.5" font-weight="600" text-anchor="middle">SelfExamLog</text>
+      <text x="404" y="466" font-size="9.5">+ date : DateTime</text>
+      <text x="404" y="479" font-size="9.5">+ note : String?</text>
+
+      <rect x="586" y="428" width="178" height="88" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="586" y="428" width="178" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="675" y="444" font-size="11.5" font-weight="600" text-anchor="middle">Reminder</text>
+      <text x="594" y="466" font-size="9.5">+ title : String</text>
+      <text x="594" y="479" font-size="9.5">+ type : String</text>
+      <text x="594" y="492" font-size="9.5">+ dueDate : DateTime</text>
+      <text x="594" y="505" font-size="9.5">+ done : Boolean</text>
+
+      <!-- Barramento de associação -->
+      <line x1="390" y1="166" x2="390" y2="196" stroke="#262322"/>
+      <line x1="100" y1="196" x2="675" y2="196" stroke="#262322"/>
+      <line x1="100" y1="196" x2="100" y2="228" stroke="#262322" marker-end="url(#c1)"/>
+      <line x1="290" y1="196" x2="290" y2="228" stroke="#262322" marker-end="url(#c1)"/>
+      <line x1="480" y1="196" x2="480" y2="228" stroke="#262322" marker-end="url(#c1)"/>
+      <line x1="675" y1="196" x2="675" y2="228" stroke="#262322" marker-end="url(#c1)"/>
+
+      <line x1="100" y1="326" x2="100" y2="426" stroke="#262322" marker-end="url(#c1)"/>
+      <line x1="290" y1="326" x2="290" y2="426" stroke="#262322" marker-end="url(#c1)"/>
+      <line x1="480" y1="326" x2="480" y2="426" stroke="#262322" marker-end="url(#c1)"/>
+      <line x1="675" y1="326" x2="675" y2="426" stroke="#262322" marker-end="url(#c1)"/>
+
+      <!-- Cardinalidades -->
+      <text x="396" y="184" font-size="10" font-weight="600">1</text>
+      <text x="106" y="222" font-size="10">0..*</text>
+      <text x="296" y="222" font-size="10">0..1</text>
+      <text x="486" y="222" font-size="10">0..*</text>
+      <text x="681" y="222" font-size="10">0..*</text>
+      <text x="106" y="420" font-size="10">0..*</text>
+      <text x="296" y="420" font-size="10">0..*</text>
+      <text x="486" y="420" font-size="10">0..*</text>
+      <text x="681" y="420" font-size="10">0..*</text>
+
+      <text x="20" y="560" font-size="9.5" fill="#6b6360">Todas as associações partem de User com exclusão em cascata (onDelete: Cascade).</text>
+      <text x="20" y="576" font-size="9.5" fill="#6b6360">Convenção: (+) atributo de domínio · (−) atributo sensível, nunca exposto ao cliente.</text>
+      <text x="20" y="592" font-size="9.5" fill="#6b6360">Campos id, userId, createdAt e updatedAt omitidos das caixas — presentes em todas as entidades.</text>
+    </svg>
+    <figcaption>
+      <strong>Figura 2 — Diagrama de classes do núcleo de saúde.</strong> Oito
+      entidades de registro pendem de <code>User</code>. <code>Pregnancy</code> é a
+      única associação <em>um-para-zero-ou-um</em>, garantida por restrição de
+      unicidade em <code>userId</code>; <code>PillLog</code> impede duplicidade
+      diária por unicidade composta.
+    </figcaption>
+  </figure>
+</section>
+
+<section class="page-break">
+  <h2>4.2 Diagrama de classes — assistente</h2>
+  <p>
+    A camada conversacional distingue dois tipos de memória: o
+    <strong>histórico</strong>, restrito a uma conversa
+    (<code>ChatMessage</code> pertence a <code>Conversation</code>), e a
+    <strong>memória de longo prazo</strong> (<code>ChatMemory</code>), associada
+    diretamente à usuária e, portanto, compartilhada por todas as conversas.
+    Essa distinção é o mecanismo que permite conversas com contextos isolados e,
+    ao mesmo tempo, uma assistente que reconhece a usuária.
+  </p>
+
+  <figure>
+    <svg viewBox="0 0 700 420" role="img" aria-label="Diagrama de classes da assistente: User possui muitas Conversation e muitas ChatMemory; cada Conversation possui muitas ChatMessage. ChatMemory é compartilhada entre todas as conversas, enquanto ChatMessage é restrita a uma conversa">
+      <defs>
+        <marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#262322"/>
+        </marker>
+      </defs>
+
+      <!-- User -->
+      <rect x="252" y="16" width="196" height="66" rx="4" fill="#fff1f1" stroke="#ef4a57" stroke-width="1.5"/>
+      <rect x="252" y="16" width="196" height="24" rx="4" fill="#ef4a57"/>
+      <text x="350" y="33" font-size="13" font-weight="600" fill="#fff" text-anchor="middle">User</text>
+      <text x="262" y="57" font-size="10">+ id : String &lt;&lt;PK&gt;&gt;</text>
+      <text x="262" y="72" font-size="10">+ goal : String?</text>
+
+      <!-- Conversation -->
+      <rect x="60" y="164" width="200" height="90" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="60" y="164" width="200" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="160" y="180" font-size="11.5" font-weight="600" text-anchor="middle">Conversation</text>
+      <text x="68" y="202" font-size="9.5">+ id : String &lt;&lt;PK&gt;&gt;</text>
+      <text x="68" y="216" font-size="9.5">+ title : String</text>
+      <text x="68" y="230" font-size="9.5">+ createdAt : DateTime</text>
+      <text x="68" y="244" font-size="9.5">+ updatedAt : DateTime</text>
+
+      <!-- ChatMessage -->
+      <rect x="60" y="308" width="200" height="80" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <rect x="60" y="308" width="200" height="22" rx="4" fill="#f7f5f3"/>
+      <text x="160" y="324" font-size="11.5" font-weight="600" text-anchor="middle">ChatMessage</text>
+      <text x="68" y="346" font-size="9.5">+ role : String</text>
+      <text x="68" y="360" font-size="9.5">   "user" | "assistant"</text>
+      <text x="68" y="376" font-size="9.5">+ content : String</text>
+
+      <!-- ChatMemory -->
+      <rect x="438" y="164" width="216" height="90" rx="4" fill="#f3ecfb" stroke="#9564c4"/>
+      <rect x="438" y="164" width="216" height="22" rx="4" fill="#ede3f8"/>
+      <text x="546" y="180" font-size="11.5" font-weight="600" text-anchor="middle" fill="#643c88">ChatMemory</text>
+      <text x="446" y="202" font-size="9.5">+ id : String &lt;&lt;PK&gt;&gt;</text>
+      <text x="446" y="216" font-size="9.5">+ fact : String</text>
+      <text x="446" y="230" font-size="9.5">+ createdAt : DateTime</text>
+      <text x="446" y="246" font-size="9" fill="#643c88">fato durável sobre a usuária</text>
+
+      <!-- Relações -->
+      <path d="M 300 82 L 160 82 L 160 162" fill="none" stroke="#262322" marker-end="url(#c2)"/>
+      <text x="166" y="100" font-size="10" font-weight="600">1</text>
+      <text x="166" y="156" font-size="10">0..*</text>
+      <text x="196" y="76" font-size="9" fill="#6b6360">possui</text>
+
+      <line x1="160" y1="254" x2="160" y2="306" stroke="#262322" marker-end="url(#c2)"/>
+      <text x="166" y="270" font-size="10" font-weight="600">1</text>
+      <text x="166" y="300" font-size="10">0..*</text>
+      <text x="176" y="285" font-size="9" fill="#6b6360">contém</text>
+
+      <path d="M 400 82 L 546 82 L 546 162" fill="none" stroke="#9564c4" marker-end="url(#c2)"/>
+      <text x="524" y="100" font-size="10" font-weight="600">1</text>
+      <text x="524" y="156" font-size="10">0..*</text>
+      <text x="470" y="76" font-size="9" fill="#643c88">aprende sobre</text>
+
+      <!-- Anotações de escopo -->
+      <rect x="292" y="316" width="362" height="66" rx="4" fill="#f7f5f3" stroke="#ddd8d4" stroke-dasharray="4 3"/>
+      <text x="302" y="334" font-size="9.5" font-weight="600">Escopo do contexto enviado ao modelo</text>
+      <text x="302" y="350" font-size="9.5">• ChatMessage — apenas da conversa aberta (últimas 20)</text>
+      <text x="302" y="364" font-size="9.5" fill="#643c88">• ChatMemory — todas, em qualquer conversa</text>
+      <text x="302" y="378" font-size="9.5">• Dados de saúde — lidos ao vivo do banco a cada mensagem</text>
+    </svg>
+    <figcaption>
+      <strong>Figura 3 — Diagrama de classes da assistente.</strong> O isolamento
+      entre conversas decorre de <code>ChatMessage</code> pender de
+      <code>Conversation</code>; a continuidade entre elas decorre de
+      <code>ChatMemory</code> pender diretamente de <code>User</code>.
+    </figcaption>
+  </figure>
+
+  <h2>4.3 Dicionário de dados</h2>
+  <table>
+    <tr><th style="width:34mm">Entidade</th><th style="width:20mm">Registros</th><th>Finalidade e observações</th></tr>
+    <tr><td><code>User</code></td><td>1 por conta</td><td>Identidade, credenciais (hash), objetivo e marco de onboarding.</td></tr>
+    <tr><td><code>CycleEntry</code></td><td>0..n</td><td>Ciclo menstrual. Base de todas as previsões. Índice em <code>(userId, startDate)</code>.</td></tr>
+    <tr><td><code>Pregnancy</code></td><td>0..1</td><td>Gestação ativa. <code>lastPeriodDate</code> (DUM) origina idade gestacional e DPP.</td></tr>
+    <tr><td><code>MoodEntry</code></td><td>0..n</td><td>Humor com intensidade de 1 a 5.</td></tr>
+    <tr><td><code>DailyLog</code></td><td>0..n</td><td>Check-in diário: energia, dor, sono e sintomas.</td></tr>
+    <tr><td><code>HealthMetric</code></td><td>0..n</td><td>Série temporal de medidas. <code>value2</code> comporta a pressão diastólica.</td></tr>
+    <tr><td><code>PillLog</code></td><td>0..n</td><td>Adesão ao anticoncepcional; unicidade composta evita duplicidade diária.</td></tr>
+    <tr><td><code>SelfExamLog</code></td><td>0..n</td><td>Registro do autoexame das mamas.</td></tr>
+    <tr><td><code>Reminder</code></td><td>0..n</td><td>Exames, consultas e medicação, com estado de conclusão.</td></tr>
+    <tr><td><code>Conversation</code></td><td>0..n</td><td>Sessão de diálogo; título derivado da primeira mensagem.</td></tr>
+    <tr><td><code>ChatMessage</code></td><td>0..n</td><td>Turno de diálogo, ordenado por <code>createdAt</code>.</td></tr>
+    <tr><td><code>ChatMemory</code></td><td>0..n</td><td>Fato durável sobre a usuária, reinjetado em todas as conversas.</td></tr>
+  </table>
+
+  <h2>4.4 Decisões de modelagem</h2>
+  <table>
+    <tr><th style="width:46mm">Decisão</th><th>Fundamento e consequência</th></tr>
+    <tr>
+      <td>Enumerações como <code>String</code></td>
+      <td>O SQLite não possui tipo <em>enum</em>. Os valores admissíveis residem em <code>lib/constants.ts</code> e são impostos por Zod na fronteira de escrita. Preserva a portabilidade a PostgreSQL sem migração de tipos.</td>
+    </tr>
+    <tr>
+      <td>Listas em campo textual</td>
+      <td><code>symptoms</code> armazena valores separados por vírgula em vez de tabela associativa. Escolha deliberada: o dado é lido em bloco e nunca consultado por item. Caso surja necessidade de filtro por sintoma, exige normalização.</td>
+    </tr>
+    <tr>
+      <td>Exclusão em cascata</td>
+      <td>Todas as entidades declaram <code>onDelete: Cascade</code>, de modo que a eliminação da conta remove integralmente os dados — requisito de LGPD atendido pelo próprio esquema.</td>
+    </tr>
+    <tr>
+      <td>Ausência de <em>soft delete</em></td>
+      <td>Registros de saúde excluídos são removidos fisicamente. Privilegia-se o direito à eliminação sobre a auditabilidade.</td>
+    </tr>
+    <tr>
+      <td>Memória separada do histórico</td>
+      <td><code>ChatMemory</code> associa-se a <code>User</code>, não a <code>Conversation</code>, viabilizando continuidade entre conversas sem transportar histórico integral no <em>prompt</em>.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============ 5. CASOS DE USO ============ -->
+<section class="page-break">
+  <h1>5. Casos de uso</h1>
+
+  <h2>5.1 Diagrama de casos de uso</h2>
+  <figure>
+    <svg viewBox="0 0 760 640" role="img" aria-label="Diagrama de casos de uso com a atriz principal Usuária à esquerda, a fronteira do sistema Canaã Delas AI no centro contendo casos de uso agrupados em acesso, acompanhamento de saúde, prevenção e autocuidado, assistente com inteligência artificial e governança de dados, e à direita os atores externos API da OpenAI e Gestão Pública Municipal">
+      <defs>
+        <marker id="u1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#262322"/>
+        </marker>
+        <marker id="u2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#9564c4"/>
+        </marker>
+      </defs>
+
+      <!-- Fronteira do sistema -->
+      <rect x="176" y="14" width="404" height="612" rx="6" fill="#fdfcfb" stroke="#262322" stroke-width="1.2"/>
+      <text x="378" y="36" font-size="12" font-weight="600" text-anchor="middle">Sistema Canaã Delas AI</text>
+
+      <!-- Atriz: Usuária -->
+      <g stroke="#262322" stroke-width="1.6" fill="none">
+        <circle cx="72" cy="292" r="13" fill="#fff1f1" stroke="#ef4a57"/>
+        <line x1="72" y1="305" x2="72" y2="342" stroke="#ef4a57"/>
+        <line x1="50" y1="318" x2="94" y2="318" stroke="#ef4a57"/>
+        <line x1="72" y1="342" x2="55" y2="372" stroke="#ef4a57"/>
+        <line x1="72" y1="342" x2="89" y2="372" stroke="#ef4a57"/>
+      </g>
+      <text x="72" y="392" font-size="11.5" font-weight="600" text-anchor="middle" fill="#c93140">Usuária</text>
+      <text x="72" y="406" font-size="9" fill="#6b6360" text-anchor="middle">atriz principal</text>
+
+      <!-- Ator externo: OpenAI -->
+      <rect x="614" y="268" width="132" height="52" rx="4" fill="#f3ecfb" stroke="#9564c4" stroke-dasharray="4 3"/>
+      <text x="680" y="290" font-size="10.5" font-weight="600" text-anchor="middle" fill="#643c88">API da OpenAI</text>
+      <text x="680" y="304" font-size="8.5" fill="#6b6360" text-anchor="middle">&lt;&lt;sistema externo&gt;&gt;</text>
+
+      <!-- Ator: Gestão pública (planejado) -->
+      <rect x="614" y="524" width="132" height="56" rx="4" fill="#f7f5f3" stroke="#ddd8d4" stroke-dasharray="4 3"/>
+      <text x="680" y="544" font-size="10.5" font-weight="600" text-anchor="middle">Gestão Pública</text>
+      <text x="680" y="557" font-size="8.5" fill="#6b6360" text-anchor="middle">Secretaria de Saúde</text>
+      <text x="680" y="570" font-size="8.5" fill="#6b6360" text-anchor="middle">&lt;&lt;planejado&gt;&gt;</text>
+
+      <!-- Grupo: Acesso -->
+      <text x="196" y="62" font-size="9" fill="#6b6360" letter-spacing="1">ACESSO</text>
+      <ellipse cx="298" cy="86" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="298" y="90" font-size="10.5" text-anchor="middle">Autenticar-se</text>
+      <ellipse cx="470" cy="86" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="470" y="90" font-size="10.5" text-anchor="middle">Definir objetivo (onboarding)</text>
+
+      <!-- Grupo: Saúde -->
+      <text x="196" y="136" font-size="9" fill="#6b6360" letter-spacing="1">ACOMPANHAMENTO DE SAÚDE</text>
+      <ellipse cx="298" cy="162" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="298" y="166" font-size="10.5" text-anchor="middle">Registrar ciclo menstrual</text>
+      <ellipse cx="470" cy="162" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="470" y="166" font-size="10.5" text-anchor="middle">Consultar calendário e fase</text>
+      <ellipse cx="298" cy="208" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="298" y="212" font-size="10.5" text-anchor="middle">Acompanhar gestação</text>
+      <ellipse cx="470" cy="208" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="470" y="212" font-size="10.5" text-anchor="middle">Registrar humor e check-in</text>
+      <ellipse cx="298" cy="254" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="298" y="258" font-size="10.5" text-anchor="middle">Registrar medidas de saúde</text>
+      <ellipse cx="470" cy="254" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="470" y="258" font-size="10.5" text-anchor="middle">Controlar anticoncepcional</text>
+
+      <!-- Grupo: Prevenção -->
+      <text x="196" y="304" font-size="9" fill="#6b6360" letter-spacing="1">PREVENÇÃO E AUTOCUIDADO</text>
+      <ellipse cx="298" cy="330" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="298" y="334" font-size="10.5" text-anchor="middle">Gerenciar lembretes</text>
+      <ellipse cx="470" cy="330" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="470" y="334" font-size="10.5" text-anchor="middle">Realizar autoexame</text>
+      <ellipse cx="298" cy="376" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="298" y="380" font-size="10.5" text-anchor="middle">Consultar biblioteca</text>
+      <ellipse cx="470" cy="376" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="470" y="380" font-size="10.5" text-anchor="middle">Localizar serviços e apoio</text>
+
+      <!-- Grupo: IA -->
+      <text x="196" y="426" font-size="9" fill="#643c88" letter-spacing="1">ASSISTENTE COM IA</text>
+      <ellipse cx="298" cy="452" rx="94" ry="20" fill="#f3ecfb" stroke="#9564c4"/>
+      <text x="298" y="456" font-size="10.5" text-anchor="middle" fill="#643c88">Conversar com assistente</text>
+      <ellipse cx="470" cy="452" rx="94" ry="20" fill="#f3ecfb" stroke="#9564c4"/>
+      <text x="470" y="456" font-size="10.5" text-anchor="middle" fill="#643c88">Gerenciar memória da IA</text>
+      <ellipse cx="384" cy="498" rx="94" ry="20" fill="#f3ecfb" stroke="#9564c4"/>
+      <text x="384" y="502" font-size="10.5" text-anchor="middle" fill="#643c88">Receber insights</text>
+
+      <!-- Grupo: Dados -->
+      <text x="196" y="548" font-size="9" fill="#6b6360" letter-spacing="1">GOVERNANÇA DE DADOS</text>
+      <ellipse cx="298" cy="574" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="298" y="578" font-size="10.5" text-anchor="middle">Exportar meus dados</text>
+      <ellipse cx="470" cy="574" rx="94" ry="20" fill="#fff" stroke="#262322"/>
+      <text x="470" y="578" font-size="10.5" text-anchor="middle">Excluir minha conta</text>
+      <ellipse cx="384" cy="610" rx="94" ry="16" fill="#f7f5f3" stroke="#ddd8d4" stroke-dasharray="4 3"/>
+      <text x="384" y="614" font-size="10" text-anchor="middle" fill="#6b6360">Gerar relatório para consulta</text>
+
+      <!-- Associações da atriz -->
+      <g stroke="#ef4a57" fill="none">
+        <line x1="96" y1="286" x2="204" y2="92"/>
+        <line x1="96" y1="288" x2="204" y2="166"/>
+        <line x1="96" y1="290" x2="204" y2="212"/>
+        <line x1="96" y1="296" x2="204" y2="256"/>
+        <line x1="96" y1="304" x2="204" y2="332"/>
+        <line x1="96" y1="308" x2="204" y2="378"/>
+        <line x1="96" y1="312" x2="204" y2="454"/>
+        <line x1="96" y1="316" x2="204" y2="500"/>
+        <line x1="96" y1="322" x2="204" y2="576"/>
+      </g>
+
+      <!-- Dependência com OpenAI -->
+      <line x1="392" y1="452" x2="612" y2="300" stroke="#9564c4" stroke-dasharray="5 3" marker-end="url(#u2)"/>
+      <text x="520" y="366" font-size="9" fill="#643c88" text-anchor="middle">&lt;&lt;usa&gt;&gt;</text>
+
+      <!-- Gestão pública -->
+      <line x1="478" y1="592" x2="612" y2="552" stroke="#6b6360" stroke-dasharray="4 3" marker-end="url(#u1)"/>
+      <text x="556" y="586" font-size="8.5" fill="#6b6360" text-anchor="middle">dados agregados</text>
+    </svg>
+    <figcaption>
+      <strong>Figura 4 — Diagrama de casos de uso.</strong> A usuária é a única
+      atriz com acesso direto ao sistema. A API da OpenAI participa apenas dos
+      casos de uso da assistente, em relação de dependência
+      (<code>&lt;&lt;usa&gt;&gt;</code>). Elementos tracejados correspondem a
+      escopo planejado.
+    </figcaption>
+  </figure>
+</section>
+
+<section class="page-break">
+  <h2>5.2 Especificação dos casos principais</h2>
+
+  <div class="uc">
+    <div class="uc-head"><span>UC-01</span> — Registrar ciclo menstrual</div>
+    <div class="uc-body">
+      <dl>
+        <dt>Atriz</dt><dd>Usuária autenticada</dd>
+        <dt>Objetivo</dt><dd>Registrar o início (e opcionalmente o término) de um ciclo, com fluxo e sintomas.</dd>
+        <dt>Pré-condição</dt><dd>Sessão válida e onboarding concluído.</dd>
+        <dt>Pós-condição</dt><dd><code>CycleEntry</code> persistido; previsões, fase e calendário recalculados.</dd>
+        <dt>Fluxo principal</dt>
+        <dd>
+          <ol>
+            <li>A usuária acessa <code>/painel/ciclo</code>.</li>
+            <li>Informa a data de início; opcionalmente fim, fluxo, sintomas e observações.</li>
+            <li>Submete o formulário, acionando <code>addCycleAction</code>.</li>
+            <li>O sistema valida a entrada com <code>cycleSchema</code> (Zod).</li>
+            <li>Persiste o registro vinculado ao <code>userId</code> da sessão.</li>
+            <li>Invalida o cache das rotas <code>/painel</code> e <code>/painel/ciclo</code>.</li>
+            <li>A tela reapresenta calendário, fase atual e estatísticas atualizados.</li>
+          </ol>
+        </dd>
+        <dt>Fluxo alternativo</dt><dd>A4a. Validação falha: retorna erros por campo, preservando o formulário.</dd>
+        <dt>Regras</dt><dd>Intervalos entre 15 e 60 dias são considerados válidos para cálculo de média; os demais são descartados como discrepantes.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="uc">
+    <div class="uc-head"><span>UC-02</span> — Conversar com a assistente</div>
+    <div class="uc-body">
+      <dl>
+        <dt>Atrizes</dt><dd>Usuária autenticada; API da OpenAI (ator externo)</dd>
+        <dt>Objetivo</dt><dd>Obter orientação personalizada em linguagem natural, com contexto isolado por conversa.</dd>
+        <dt>Pré-condição</dt><dd>Sessão válida; <code>OPENAI_API_KEY</code> configurada; conversa pertencente à usuária.</dd>
+        <dt>Pós-condição</dt><dd>Par de mensagens persistido; eventuais fatos duráveis acrescidos a <code>ChatMemory</code>.</dd>
+        <dt>Fluxo principal</dt>
+        <dd>
+          <ol>
+            <li>A usuária cria ou seleciona uma conversa.</li>
+            <li>Envia a mensagem; o cliente requisita <code>POST /api/chat</code>.</li>
+            <li>O sistema verifica a sessão e a titularidade da conversa.</li>
+            <li>Recupera as últimas 20 mensagens <em>daquela</em> conversa.</li>
+            <li>Monta o <em>prompt</em> de sistema com dados de saúde ao vivo e a memória acumulada.</li>
+            <li>Persiste a mensagem da usuária e requisita a OpenAI em modo <em>streaming</em>.</li>
+            <li>Repassa os fragmentos ao navegador, que os exibe progressivamente.</li>
+            <li>Ao concluir, persiste a resposta e executa a extração de memória.</li>
+          </ol>
+        </dd>
+        <dt>Fluxos de exceção</dt>
+        <dd>
+          3a. Sessão ausente: <code>401</code>. · 3b. Conversa de outra usuária: <code>404</code>.<br>
+          6a. Chave não configurada: <code>503</code> com orientação de configuração.<br>
+          8a. Falha na extração de memória: registrada e ignorada — não afeta a resposta entregue.
+        </dd>
+        <dt>Regras</dt><dd>Vedados diagnóstico e prescrição. Assuntos graves ensejam encaminhamento a serviço de saúde.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="uc">
+    <div class="uc-head"><span>UC-03</span> — Exportar e excluir dados pessoais</div>
+    <div class="uc-body">
+      <dl>
+        <dt>Atriz</dt><dd>Usuária autenticada</dd>
+        <dt>Objetivo</dt><dd>Exercer os direitos de acesso e de eliminação previstos na LGPD.</dd>
+        <dt>Fluxo — exportação</dt>
+        <dd>
+          <ol>
+            <li>A usuária acessa <code>/painel/configuracoes</code> e solicita a exportação.</li>
+            <li>O sistema requisita <code>GET /api/export</code>.</li>
+            <li>Agrega todas as entidades da usuária, <strong>suprimindo</strong> <code>passwordHash</code> e <code>pinHash</code>.</li>
+            <li>Responde com arquivo JSON como anexo.</li>
+          </ol>
+        </dd>
+        <dt>Fluxo — exclusão</dt>
+        <dd>
+          <ol>
+            <li>A usuária confirma a exclusão em diálogo explícito.</li>
+            <li><code>deleteAccountAction</code> remove o registro de <code>User</code>.</li>
+            <li>A cascata do banco elimina todas as entidades dependentes.</li>
+            <li>A sessão é encerrada e a usuária redirecionada à página inicial.</li>
+          </ol>
+        </dd>
+        <dt>Pós-condição</dt><dd>Nenhum dado da usuária permanece no banco. A operação é irreversível.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="uc">
+    <div class="uc-head"><span>UC-04</span> — Acompanhar gestação</div>
+    <div class="uc-body">
+      <dl>
+        <dt>Atriz</dt><dd>Usuária autenticada</dd>
+        <dt>Objetivo</dt><dd>Acompanhar a evolução da gestação a partir da data da última menstruação.</dd>
+        <dt>Fluxo principal</dt>
+        <dd>
+          <ol>
+            <li>A usuária informa a DUM em <code>/painel/gestacao</code>.</li>
+            <li><code>upsertPregnancyAction</code> valida e calcula a DPP (DUM + 280 dias).</li>
+            <li>Persiste em <code>Pregnancy</code> por <em>upsert</em> — uma gestação ativa por usuária.</li>
+            <li>O sistema apresenta idade gestacional, trimestre, percentual de progresso e marco da semana.</li>
+          </ol>
+        </dd>
+        <dt>Regras</dt><dd>Trimestres: 1.º até a 12.ª semana; 2.º da 13.ª à 26.ª; 3.º a partir da 27.ª.</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. COMPORTAMENTO ============ -->
+<section class="page-break">
+  <h1>6. Comportamento e fluxos</h1>
+
+  <h2>6.1 Sequência — autenticação</h2>
+  <figure>
+    <svg viewBox="0 0 740 380" role="img" aria-label="Diagrama de sequência da autenticação: a usuária submete o formulário de login, a Server Action valida com Zod e delega ao Auth.js, que consulta o usuário no banco via Prisma e compara a senha com bcrypt, retornando um cookie de sessão JWT e redirecionando ao painel">
+      <defs>
+        <marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#262322"/>
+        </marker>
+      </defs>
+
+      <!-- Lifelines -->
+      <g font-size="10" text-anchor="middle">
+        <rect x="14" y="14" width="104" height="34" rx="4" fill="#fff1f1" stroke="#ef4a57"/>
+        <text x="66" y="30" font-size="10.5" font-weight="600">Usuária</text>
+        <text x="66" y="42" font-size="8.5" fill="#6b6360">navegador</text>
+        <line x1="66" y1="48" x2="66" y2="344" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+
+        <rect x="146" y="14" width="112" height="34" rx="4" fill="#fff" stroke="#ddd8d4"/>
+        <text x="202" y="30" font-size="10.5" font-weight="600">LoginForm</text>
+        <text x="202" y="42" font-size="8.5" fill="#6b6360">client component</text>
+        <line x1="202" y1="48" x2="202" y2="344" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+
+        <rect x="286" y="14" width="112" height="34" rx="4" fill="#fff" stroke="#ddd8d4"/>
+        <text x="342" y="30" font-size="10.5" font-weight="600">loginAction</text>
+        <text x="342" y="42" font-size="8.5" fill="#6b6360">server action</text>
+        <line x1="342" y1="48" x2="342" y2="344" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+
+        <rect x="426" y="14" width="112" height="34" rx="4" fill="#fff" stroke="#ddd8d4"/>
+        <text x="482" y="30" font-size="10.5" font-weight="600">Auth.js</text>
+        <text x="482" y="42" font-size="8.5" fill="#6b6360">credentials</text>
+        <line x1="482" y1="48" x2="482" y2="344" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+
+        <rect x="588" y="14" width="128" height="34" rx="4" fill="#f7f5f3" stroke="#ddd8d4"/>
+        <text x="652" y="30" font-size="10.5" font-weight="600">Prisma / SQLite</text>
+        <text x="652" y="42" font-size="8.5" fill="#6b6360">User</text>
+        <line x1="652" y1="48" x2="652" y2="344" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+      </g>
+
+      <!-- Mensagens -->
+      <g font-size="9.5">
+        <line x1="66" y1="78" x2="200" y2="78" stroke="#262322" marker-end="url(#s1)"/>
+        <text x="133" y="72" text-anchor="middle">1. e-mail + senha</text>
+
+        <line x1="202" y1="108" x2="340" y2="108" stroke="#262322" marker-end="url(#s1)"/>
+        <text x="271" y="102" text-anchor="middle">2. FormData</text>
+
+        <rect x="336" y="124" width="12" height="26" fill="#fff" stroke="#262322"/>
+        <text x="356" y="141" font-size="9">3. valida (loginSchema)</text>
+
+        <line x1="342" y1="170" x2="480" y2="170" stroke="#262322" marker-end="url(#s1)"/>
+        <text x="411" y="164" text-anchor="middle">4. signIn("credentials")</text>
+
+        <line x1="482" y1="200" x2="650" y2="200" stroke="#262322" marker-end="url(#s1)"/>
+        <text x="566" y="194" text-anchor="middle">5. findUnique({ email })</text>
+
+        <line x1="650" y1="228" x2="484" y2="228" stroke="#262322" stroke-dasharray="4 3" marker-end="url(#s1)"/>
+        <text x="566" y="222" text-anchor="middle">6. User | null</text>
+
+        <rect x="476" y="244" width="12" height="26" fill="#fff" stroke="#ef4a57"/>
+        <text x="496" y="261" font-size="9" fill="#c93140">7. bcrypt.compare(senha, hash)</text>
+
+        <line x1="482" y1="290" x2="344" y2="290" stroke="#262322" stroke-dasharray="4 3" marker-end="url(#s1)"/>
+        <text x="413" y="284" text-anchor="middle">8. cookie de sessão (JWT)</text>
+
+        <line x1="342" y1="320" x2="68" y2="320" stroke="#262322" marker-end="url(#s1)"/>
+        <text x="205" y="314" text-anchor="middle">9. redirect("/painel")</text>
+      </g>
+
+      <text x="14" y="368" font-size="9" fill="#6b6360">Credenciais inválidas (passo 7 falso) retornam mensagem genérica — não se revela se o e-mail existe.</text>
+    </svg>
+    <figcaption>
+      <strong>Figura 5 — Sequência de autenticação.</strong> A senha é comparada
+      apenas em memória, no servidor, contra o <em>hash</em> bcrypt; a sessão
+      trafega como JWT em <em>cookie</em>, formato legível pelo
+      <em>middleware</em> no <em>edge</em> sem acesso ao banco.
+    </figcaption>
+  </figure>
+
+  <h2>6.2 Sequência — conversa com a assistente</h2>
+  <figure>
+    <svg viewBox="0 0 760 520" role="img" aria-label="Diagrama de sequência da conversa com a assistente, mostrando validação de titularidade, recuperação do histórico da conversa, montagem do prompt com dados de saúde e memória, chamada em streaming à OpenAI, repasse progressivo dos fragmentos ao navegador e posterior extração de fatos duráveis para a memória">
+      <defs>
+        <marker id="s2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#262322"/>
+        </marker>
+        <marker id="s3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#9564c4"/>
+        </marker>
+      </defs>
+
+      <g text-anchor="middle">
+        <rect x="10" y="14" width="98" height="34" rx="4" fill="#fff1f1" stroke="#ef4a57"/>
+        <text x="59" y="30" font-size="10.5" font-weight="600">ChatWindow</text>
+        <text x="59" y="42" font-size="8.5" fill="#6b6360">cliente</text>
+        <line x1="59" y1="48" x2="59" y2="470" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+
+        <rect x="134" y="14" width="98" height="34" rx="4" fill="#fff" stroke="#ef4a57"/>
+        <text x="183" y="30" font-size="10.5" font-weight="600">/api/chat</text>
+        <text x="183" y="42" font-size="8.5" fill="#6b6360">route handler</text>
+        <line x1="183" y1="48" x2="183" y2="470" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+
+        <rect x="258" y="14" width="108" height="34" rx="4" fill="#fff" stroke="#ddd8d4"/>
+        <text x="312" y="30" font-size="10.5" font-weight="600">chat-context</text>
+        <text x="312" y="42" font-size="8.5" fill="#6b6360">prompt + memória</text>
+        <line x1="312" y1="48" x2="312" y2="470" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+
+        <rect x="392" y="14" width="108" height="34" rx="4" fill="#f7f5f3" stroke="#ddd8d4"/>
+        <text x="446" y="30" font-size="10.5" font-weight="600">Prisma / DB</text>
+        <text x="446" y="42" font-size="8.5" fill="#6b6360">mensagens, saúde</text>
+        <line x1="446" y1="48" x2="446" y2="470" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+
+        <rect x="612" y="14" width="132" height="34" rx="4" fill="#f3ecfb" stroke="#9564c4"/>
+        <text x="678" y="30" font-size="10.5" font-weight="600" fill="#643c88">API da OpenAI</text>
+        <text x="678" y="42" font-size="8.5" fill="#6b6360">gpt-4o-mini</text>
+        <line x1="678" y1="48" x2="678" y2="470" stroke="#ddd8d4" stroke-dasharray="4 4"/>
+      </g>
+
+      <g font-size="9.5">
+        <line x1="59" y1="74" x2="181" y2="74" stroke="#262322" marker-end="url(#s2)"/>
+        <text x="120" y="68" text-anchor="middle">1. POST {conversationId, message}</text>
+
+        <line x1="183" y1="100" x2="444" y2="100" stroke="#262322" marker-end="url(#s2)"/>
+        <text x="313" y="94" text-anchor="middle">2. verifica titularidade da conversa</text>
+
+        <line x1="183" y1="126" x2="444" y2="126" stroke="#262322" marker-end="url(#s2)"/>
+        <text x="313" y="120" text-anchor="middle">3. últimas 20 mensagens DESTA conversa</text>
+
+        <line x1="183" y1="152" x2="310" y2="152" stroke="#262322" marker-end="url(#s2)"/>
+        <text x="246" y="146" text-anchor="middle">4. buildSystemPrompt</text>
+
+        <line x1="312" y1="178" x2="444" y2="178" stroke="#262322" marker-end="url(#s2)"/>
+        <text x="378" y="172" text-anchor="middle">5. ciclo, fase, gestação, humor + ChatMemory</text>
+
+        <line x1="444" y1="204" x2="314" y2="204" stroke="#262322" stroke-dasharray="4 3" marker-end="url(#s2)"/>
+        <text x="379" y="198" text-anchor="middle">6. contexto vivo</text>
+
+        <line x1="183" y1="230" x2="444" y2="230" stroke="#262322" marker-end="url(#s2)"/>
+        <text x="313" y="224" text-anchor="middle">7. persiste mensagem da usuária</text>
+
+        <line x1="183" y1="256" x2="676" y2="256" stroke="#9564c4" marker-end="url(#s3)"/>
+        <text x="430" y="250" text-anchor="middle" fill="#643c88">8. chat/completions (stream: true)</text>
+
+        <line x1="676" y1="284" x2="185" y2="284" stroke="#9564c4" stroke-dasharray="3 3" marker-end="url(#s3)"/>
+        <text x="430" y="278" text-anchor="middle" fill="#643c88">9. eventos SSE (fragmentos)</text>
+
+        <line x1="181" y1="312" x2="61" y2="312" stroke="#ef4a57" stroke-dasharray="3 3" marker-end="url(#s2)"/>
+        <text x="121" y="306" text-anchor="middle" fill="#c93140">10. texto progressivo</text>
+
+        <!-- loop -->
+        <rect x="40" y="266" width="700" height="64" fill="none" stroke="#9564c4" stroke-dasharray="2 3"/>
+        <text x="52" y="280" font-size="8.5" fill="#643c88">loop [por fragmento recebido]</text>
+
+        <line x1="183" y1="356" x2="444" y2="356" stroke="#262322" marker-end="url(#s2)"/>
+        <text x="313" y="350" text-anchor="middle">11. persiste resposta completa</text>
+
+        <line x1="183" y1="382" x2="676" y2="382" stroke="#9564c4" marker-end="url(#s3)"/>
+        <text x="430" y="376" text-anchor="middle" fill="#643c88">12. extrai fatos duráveis (chamada curta)</text>
+
+        <line x1="183" y1="408" x2="444" y2="408" stroke="#9564c4" marker-end="url(#s3)"/>
+        <text x="313" y="402" text-anchor="middle" fill="#643c88">13. grava ChatMemory (se houver)</text>
+
+        <line x1="181" y1="440" x2="61" y2="440" stroke="#262322" marker-end="url(#s2)"/>
+        <text x="121" y="434" text-anchor="middle">14. encerra stream</text>
+      </g>
+
+      <text x="10" y="492" font-size="9" fill="#6b6360">Passos 12–13 ocorrem antes do encerramento do stream, garantindo a gravação da memória; a resposta já está visível na tela.</text>
+      <text x="10" y="506" font-size="9" fill="#6b6360">Falha em 12 ou 13 é registrada e ignorada — a memória é um recurso acessório (best-effort).</text>
+    </svg>
+    <figcaption>
+      <strong>Figura 6 — Sequência da conversa com a assistente.</strong> O
+      isolamento de contexto ocorre no passo 3 (somente mensagens da conversa
+      corrente), enquanto a continuidade entre conversas provém do passo 5, que
+      injeta a memória acumulada e os dados de saúde lidos ao vivo.
+    </figcaption>
+  </figure>
+</section>
+
+<section class="page-break">
+  <h2>6.3 Estados — fases do ciclo menstrual</h2>
+  <p>
+    A fase do ciclo é derivada, não armazenada: <code>cyclePhase()</code> a
+    calcula a cada leitura a partir do dia corrente, da duração média do ciclo e
+    da duração da menstruação. A transição é, portanto, função exclusiva do tempo
+    decorrido desde o último registro de início.
+  </p>
+
+  <figure>
+    <svg viewBox="0 0 700 330" role="img" aria-label="Diagrama de estados das fases do ciclo menstrual: menstrual, folicular, ovulatória e lútea, com transições determinadas pelo dia do ciclo e retorno à fase menstrual quando um novo ciclo é registrado">
+      <defs>
+        <marker id="e1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#262322"/>
+        </marker>
+      </defs>
+
+      <!-- Estado inicial -->
+      <circle cx="34" cy="120" r="7" fill="#262322"/>
+      <line x1="41" y1="120" x2="76" y2="120" stroke="#262322" marker-end="url(#e1)"/>
+
+      <!-- Estados -->
+      <rect x="80" y="92" width="130" height="58" rx="8" fill="#fff1f1" stroke="#ef4a57" stroke-width="1.5"/>
+      <text x="145" y="115" font-size="11.5" font-weight="600" text-anchor="middle" fill="#c93140">Menstrual</text>
+      <text x="145" y="132" font-size="9" fill="#6b6360" text-anchor="middle">dia 1 … P</text>
+
+      <rect x="256" y="92" width="130" height="58" rx="8" fill="#f1f4ee" stroke="#6b7f57"/>
+      <text x="321" y="115" font-size="11.5" font-weight="600" text-anchor="middle" fill="#3f6b2f">Folicular</text>
+      <text x="321" y="132" font-size="9" fill="#6b6360" text-anchor="middle">P+1 … O−2</text>
+
+      <rect x="432" y="92" width="130" height="58" rx="8" fill="#fff6e6" stroke="#c08a2e"/>
+      <text x="497" y="115" font-size="11.5" font-weight="600" text-anchor="middle" fill="#8a5a00">Ovulatória</text>
+      <text x="497" y="132" font-size="9" fill="#6b6360" text-anchor="middle">O−1 … O+1</text>
+
+      <rect x="432" y="222" width="130" height="58" rx="8" fill="#f3ecfb" stroke="#9564c4"/>
+      <text x="497" y="245" font-size="11.5" font-weight="600" text-anchor="middle" fill="#643c88">Lútea</text>
+      <text x="497" y="262" font-size="9" fill="#6b6360" text-anchor="middle">O+2 … fim</text>
+
+      <!-- Transições -->
+      <line x1="210" y1="121" x2="254" y2="121" stroke="#262322" marker-end="url(#e1)"/>
+      <text x="232" y="112" font-size="8.5" text-anchor="middle">dia &gt; P</text>
+
+      <line x1="386" y1="121" x2="430" y2="121" stroke="#262322" marker-end="url(#e1)"/>
+      <text x="408" y="112" font-size="8.5" text-anchor="middle">dia ≥ O−1</text>
+
+      <line x1="497" y1="150" x2="497" y2="220" stroke="#262322" marker-end="url(#e1)"/>
+      <text x="506" y="188" font-size="8.5">dia &gt; O+1</text>
+
+      <!-- Retorno: contorna por cima para não cruzar a legenda -->
+      <path d="M 562 251 L 622 251 L 622 56 L 145 56 L 145 90" fill="none" stroke="#ef4a57" marker-end="url(#e1)"/>
+      <text x="384" y="48" font-size="8.5" fill="#c93140" text-anchor="middle">novo CycleEntry registrado — reinicia a contagem</text>
+
+      <!-- Legenda de variáveis -->
+      <rect x="80" y="196" width="306" height="88" rx="4" fill="#f7f5f3" stroke="#ddd8d4"/>
+      <text x="92" y="214" font-size="9.5" font-weight="600">Variáveis do cálculo</text>
+      <text x="92" y="231" font-size="9.5">P = duração da menstruação (padrão 5 dias)</text>
+      <text x="92" y="246" font-size="9.5">L = duração média do ciclo (padrão 28 dias)</text>
+      <text x="92" y="261" font-size="9.5">O = dia da ovulação = máx(P + 2, L − 14)</text>
+      <text x="92" y="276" font-size="9" fill="#6b6360">L é recalculado a partir do histórico de ciclos.</text>
+
+      <text x="80" y="312" font-size="9" fill="#6b6360">Fase derivada em tempo de leitura — não há coluna de estado no banco. Sem registros, não há fase definida.</text>
+    </svg>
+    <figcaption>
+      <strong>Figura 7 — Estados das fases do ciclo.</strong> As transições
+      dependem apenas do dia decorrido; o registro de um novo ciclo reinicia a
+      máquina de estados na fase menstrual.
+    </figcaption>
+  </figure>
+
+  <h2>6.4 Mapa de navegação</h2>
+  <figure>
+    <svg viewBox="0 0 740 420" role="img" aria-label="Mapa de navegação: área pública com página inicial, login e cadastro; portão de onboarding; e área autenticada do painel com os grupos principal, saúde, progresso, conteúdo e apoio, e conta">
+      <defs>
+        <marker id="n1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="#262322"/>
+        </marker>
+      </defs>
+
+      <!-- Público -->
+      <rect x="12" y="14" width="176" height="130" rx="6" fill="#f7f5f3" stroke="#ddd8d4"/>
+      <text x="24" y="32" font-size="9" fill="#6b6360" letter-spacing="1">PÚBLICO</text>
+      <rect x="24" y="42" width="152" height="26" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <text x="100" y="59" font-size="10" text-anchor="middle">/ (institucional)</text>
+      <rect x="24" y="76" width="152" height="26" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <text x="100" y="93" font-size="10" text-anchor="middle">/login</text>
+      <rect x="24" y="110" width="152" height="26" rx="4" fill="#fff" stroke="#ddd8d4"/>
+      <text x="100" y="127" font-size="10" text-anchor="middle">/cadastro</text>
+
+      <!-- Portão -->
+      <rect x="222" y="60" width="146" height="52" rx="6" fill="#fff1f1" stroke="#ef4a57"/>
+      <text x="295" y="80" font-size="10.5" font-weight="600" text-anchor="middle" fill="#c93140">/comecar</text>
+      <text x="295" y="94" font-size="8.5" fill="#6b6360" text-anchor="middle">onboarding obrigatório</text>
+      <text x="295" y="106" font-size="8.5" fill="#6b6360" text-anchor="middle">define objetivo</text>
+
+      <line x1="188" y1="88" x2="220" y2="88" stroke="#262322" marker-end="url(#n1)"/>
+
+      <!-- Painel -->
+      <rect x="402" y="14" width="326" height="392" rx="6" fill="#fdfcfb" stroke="#262322"/>
+      <text x="414" y="32" font-size="9" fill="#6b6360" letter-spacing="1">AUTENTICADO — /painel</text>
+
+      <rect x="414" y="42" width="302" height="30" rx="4" fill="#fff1f1" stroke="#ef4a57"/>
+      <text x="565" y="61" font-size="10" text-anchor="middle" fill="#c93140">/painel — visão geral e insights</text>
+
+      <text x="414" y="90" font-size="8.5" fill="#6b6360" letter-spacing=".8">PRINCIPAL · navegação inferior no mobile</text>
+      <g font-size="9">
+        <rect x="414" y="96" width="70" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="449" y="112" text-anchor="middle">/ciclo</text>
+        <rect x="490" y="96" width="70" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="525" y="112" text-anchor="middle">/diario</text>
+        <rect x="566" y="96" width="74" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="603" y="112" text-anchor="middle">/bem-estar</text>
+        <rect x="646" y="96" width="70" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="681" y="112" text-anchor="middle">/lembretes</text>
+      </g>
+
+      <text x="414" y="142" font-size="8.5" fill="#6b6360" letter-spacing=".8">SAÚDE</text>
+      <g font-size="9">
+        <rect x="414" y="148" width="74" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="451" y="164" text-anchor="middle">/gestacao</text>
+        <rect x="494" y="148" width="70" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="529" y="164" text-anchor="middle">/medidas</text>
+        <rect x="570" y="148" width="62" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="601" y="164" text-anchor="middle">/pilula</text>
+        <rect x="638" y="148" width="78" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="677" y="164" text-anchor="middle">/autoexame</text>
+        <rect x="414" y="178" width="70" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="449" y="194" text-anchor="middle">/exames</text>
+      </g>
+
+      <text x="414" y="224" font-size="8.5" fill="#6b6360" letter-spacing=".8">PROGRESSO</text>
+      <g font-size="9">
+        <rect x="414" y="230" width="66" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="447" y="246" text-anchor="middle">/metas</text>
+        <rect x="486" y="230" width="80" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="526" y="246" text-anchor="middle">/relatorio</text>
+      </g>
+
+      <text x="414" y="276" font-size="8.5" fill="#643c88" letter-spacing=".8">CONTEÚDO E APOIO</text>
+      <g font-size="9">
+        <rect x="414" y="282" width="82" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="455" y="298" text-anchor="middle">/biblioteca</text>
+        <rect x="502" y="282" width="78" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="541" y="298" text-anchor="middle">/servicos</text>
+        <rect x="586" y="282" width="62" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="617" y="298" text-anchor="middle">/apoio</text>
+        <rect x="414" y="312" width="96" height="24" rx="3" fill="#f3ecfb" stroke="#9564c4"/><text x="462" y="328" text-anchor="middle" fill="#643c88">/assistente</text>
+        <rect x="516" y="312" width="112" height="24" rx="3" fill="#f3ecfb" stroke="#9564c4"/><text x="572" y="328" text-anchor="middle" fill="#643c88">/assistente/[id]</text>
+        <rect x="414" y="342" width="128" height="24" rx="3" fill="#f3ecfb" stroke="#9564c4" stroke-dasharray="3 2"/><text x="478" y="358" text-anchor="middle" fill="#643c88">/assistente/memoria</text>
+      </g>
+
+      <text x="556" y="358" font-size="8.5" fill="#6b6360" letter-spacing=".8">CONTA</text>
+      <g font-size="9">
+        <rect x="556" y="366" width="112" height="24" rx="3" fill="#fff" stroke="#ddd8d4"/><text x="612" y="382" text-anchor="middle">/configuracoes</text>
+      </g>
+
+      <line x1="368" y1="88" x2="400" y2="88" stroke="#262322" marker-end="url(#n1)"/>
+      <text x="384" y="80" font-size="8" fill="#6b6360" text-anchor="middle"> </text>
+
+      <!-- Middleware -->
+      <path d="M 295 112 L 295 250 L 400 250" fill="none" stroke="#6b6360" stroke-dasharray="4 3" marker-end="url(#n1)"/>
+      <text x="300" y="270" font-size="8.5" fill="#6b6360">middleware bloqueia</text>
+      <text x="300" y="282" font-size="8.5" fill="#6b6360">acesso sem sessão</text>
+      <text x="300" y="294" font-size="8.5" fill="#6b6360">e sem onboarding</text>
+    </svg>
+    <figcaption>
+      <strong>Figura 8 — Mapa de navegação.</strong> Vinte telas autenticadas
+      organizadas em cinco grupos. Nenhuma rota sob <code>/painel</code> é
+      alcançável sem sessão válida e onboarding concluído.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- ============ 7. IA ============ -->
+<section class="page-break">
+  <h1>7. Camada de Inteligência Artificial</h1>
+  <p>
+    A assistente é o diferencial funcional do produto. Seu comportamento resulta
+    da composição de três fontes de contexto, montadas a cada mensagem enviada.
+  </p>
+
+  <table>
+    <tr><th style="width:38mm">Fonte de contexto</th><th style="width:26mm">Escopo</th><th>Conteúdo e origem</th></tr>
+    <tr>
+      <td>Persona e limites</td><td>Fixo</td>
+      <td>Instruções de tom, idioma e vedações clínicas. Definido em <code>chat-context.ts</code>.</td>
+    </tr>
+    <tr>
+      <td>Dados de saúde</td><td>Lido ao vivo</td>
+      <td>Dia e fase do ciclo, previsões, estatísticas, gestação, humores e sintomas recorrentes. Consultado no banco a cada mensagem — nunca fica obsoleto.</td>
+    </tr>
+    <tr>
+      <td>Memória de longo prazo</td><td>Acumulado</td>
+      <td>Até 30 fatos duráveis de <code>ChatMemory</code>, compartilhados por todas as conversas.</td>
+    </tr>
+    <tr>
+      <td>Histórico da conversa</td><td>Isolado</td>
+      <td>Últimas 20 mensagens <em>daquela</em> conversa — o que garante contextos independentes.</td>
+    </tr>
+  </table>
+
+  <h3>7.1 Ciclo de aprendizado</h3>
+  <p>
+    Concluída cada resposta, uma segunda chamada de baixo custo analisa a troca e
+    extrai <em>apenas fatos duráveis</em>. A distinção entre durável e passageiro
+    é decisiva: sem ela, a memória se contamina com dados que envelhecem mal.
+  </p>
+
+  <table>
+    <tr><th style="width:50%">Memorizado (durável)</th><th>Descartado (passageiro ou derivável)</th></tr>
+    <tr>
+      <td>
+        Condições e diagnósticos relatados<br>
+        Alergias e medicação de uso contínuo<br>
+        Método contraceptivo em uso<br>
+        Histórico gestacional e cirúrgico<br>
+        Preferências e contexto de vida<br>
+        Padrões recorrentes relatados
+      </td>
+      <td>
+        Dia ou fase atual do ciclo<br>
+        Humor e sintomas do dia<br>
+        Horas de sono de uma noite<br>
+        Datas previstas<br>
+        Explicações dadas pela própria assistente<br>
+        Perguntas, saudações e agradecimentos
+      </td>
+    </tr>
+  </table>
+
+  <div class="note">
+    <strong>Defeito identificado e corrigido durante a implementação.</strong>
+    A primeira versão do extrator memorizou o registro <em>“Ela está no dia 37 do
+    seu ciclo”</em>. Trata-se de informação passageira: no dia seguinte estaria
+    incorreta e passaria a contaminar todas as respostas subsequentes. O
+    <em>prompt</em> de extração foi então reescrito com exemplos negativos
+    explícitos e a diretriz de responder <code>NADA</code> em caso de dúvida.
+    Após a correção, a mesma troca passou a produzir os fatos
+    <em>“Tem endometriose”</em>, <em>“Costuma ter cólica forte no primeiro dia”</em>
+    e <em>“Usa DIU de cobre”</em>, descartando o dado do ciclo.
+  </div>
+
+  <h3>7.2 Segurança clínica</h3>
+  <table>
+    <tr><th style="width:44mm">Salvaguarda</th><th>Implementação</th></tr>
+    <tr><td>Vedação a diagnóstico</td><td>Instrução explícita no <em>prompt</em> de sistema.</td></tr>
+    <tr><td>Vedação a prescrição</td><td>Proibição de indicar medicamento ou dosagem.</td></tr>
+    <tr><td>Encaminhamento</td><td>Orientação a procurar UBS ou profissional diante de sinais de alerta.</td></tr>
+    <tr><td>Emergência</td><td>Telefones 192 (SAMU) e 180 (Central de Atendimento à Mulher).</td></tr>
+    <tr><td>Vedação à invenção</td><td>Instrução para admitir desconhecimento e não inferir dados de saúde.</td></tr>
+    <tr><td>Aviso na interface</td><td>Texto permanente sob o campo de mensagem.</td></tr>
+  </table>
+
+  <h3>7.3 Parâmetros de operação</h3>
+  <table>
+    <tr><th style="width:44mm">Parâmetro</th><th>Valor</th></tr>
+    <tr><td>Modelo</td><td><code>gpt-4o-mini</code> (configurável por <code>OPENAI_MODEL</code>)</td></tr>
+    <tr><td>Transporte</td><td><code>fetch</code> nativo sobre <code>chat/completions</code>, sem SDK</td></tr>
+    <tr><td>Streaming</td><td><em>Server-Sent Events</em> convertidos em <code>ReadableStream</code> de texto</td></tr>
+    <tr><td>Temperatura</td><td>0,7 no diálogo · 0,3 na extração de memória</td></tr>
+    <tr><td>Limite de resposta</td><td>800 <em>tokens</em> no diálogo · 200 na extração</td></tr>
+    <tr><td>Janela de histórico</td><td>20 mensagens · 30 fatos de memória</td></tr>
+    <tr><td>Degradação</td><td>Ausência de chave resulta em HTTP 503 com orientação; o restante do sistema segue operante</td></tr>
+  </table>
+</section>
+
+<!-- ============ 8. ALGORITMOS ============ -->
+<section class="page-break">
+  <h1>8. Algoritmos de domínio</h1>
+  <p>
+    As regras de cálculo residem em <code>lib/utils.ts</code> como funções puras,
+    sem dependência de banco ou rede — condição que as torna determinísticas e
+    verificáveis isoladamente.
+  </p>
+
+  <h3>8.1 Previsão de ciclo — <code>predictCycle()</code></h3>
+  <pre>Entrada: lista de datas de início de ciclos
+1. Ordenar as datas em ordem decrescente; seja U a mais recente
+2. Calcular os intervalos entre inícios consecutivos
+3. Descartar intervalos fora de [21, 45] dias (dados incompletos)
+4. L ← média dos intervalos restantes, arredondada
+   (na ausência de histórico suficiente, L ← 28)
+5. Próxima menstruação      ← U + L
+6. Ovulação estimada        ← (U + L) − 14
+7. Janela fértil            ← [ovulação − 5, ovulação + 1]
+8. Dia atual do ciclo       ← (hoje − U) + 1</pre>
+  <p>
+    O ancoramento da ovulação em quatorze dias <em>antes</em> da próxima
+    menstruação — e não após o início da anterior — segue a constatação clínica
+    de que a fase lútea é mais estável que a folicular, o que reduz o erro em
+    ciclos de duração atípica.
+  </p>
+
+  <h3>8.2 Estatísticas de regularidade — <code>cycleStats()</code></h3>
+  <pre>Entrada: lista de datas de início
+1. Calcular intervalos consecutivos; descartar valores fora de [15, 60]
+2. média, mínimo, máximo ← sobre os intervalos válidos
+3. variação ← máximo − mínimo
+4. Classificação:
+     variação ≤ 4 dias  → "regular"
+     variação &gt; 4 dias  → "irregular"
+     menos de 2 intervalos → "insuficiente"</pre>
+
+  <h3>8.3 Progresso gestacional — <code>pregnancyProgress()</code></h3>
+  <pre>Entrada: DUM (data da última menstruação)
+1. dias        ← hoje − DUM
+2. semanas     ← ⌊dias ÷ 7⌋       resto ← dias mod 7
+3. DPP         ← DUM + 280 dias   (40 semanas — regra de Naegele)
+4. trimestre   ← semanas &lt; 13 → 1 ;  semanas &lt; 27 → 2 ;  senão 3
+5. progresso % ← mín(100, ⌊dias ÷ 280 × 100⌋)</pre>
+
+  <h3>8.4 Geração de insights — <code>generateInsights()</code></h3>
+  <p>
+    Regras heurísticas determinísticas, sem uso de modelo de linguagem. Retorna
+    no máximo cinco itens, por ordem de relevância.
+  </p>
+  <table>
+    <tr><th style="width:56mm">Condição avaliada</th><th>Insight produzido</th></tr>
+    <tr><td>Janela fértil em até 3 dias</td><td>Antecipação da janela fértil com a data</td></tr>
+    <tr><td>Caso contrário, havendo previsão</td><td>Data prevista da próxima menstruação</td></tr>
+    <tr><td>Fase lútea corrente</td><td>Alerta antecipado de sintomas pré-menstruais</td></tr>
+    <tr><td>Histórico com média disponível</td><td>Regularidade e amplitude de variação</td></tr>
+    <tr><td>Sintoma repetido 2 ou mais vezes</td><td>Sintoma predominante e sua frequência</td></tr>
+    <tr><td>3 ou mais registros de sono</td><td>Média de horas de sono</td></tr>
+    <tr><td>3 ou mais registros de humor</td><td>Humor predominante</td></tr>
+  </table>
+
+  <h3>8.5 Sequência de adesão — <code>currentStreak()</code></h3>
+  <pre>Entrada: lista de datas de registro
+1. Normalizar as datas ao início do dia; formar conjunto de chaves
+2. Fixar o cursor em hoje, se houver registro; senão em ontem;
+   não havendo nenhum dos dois, retornar 0
+3. Enquanto o cursor existir no conjunto: incrementar contagem; recuar um dia
+4. Retornar a contagem</pre>
+  <p>
+    A tolerância ao dia anterior é intencional: preserva a sequência de quem
+    ainda não registrou o dia corrente, evitando penalizar a usuária pelo
+    horário de acesso.
+  </p>
+</section>
+
+<!-- ============ 9. SEGURANÇA ============ -->
+<section class="page-break">
+  <h1>9. Segurança, privacidade e conformidade</h1>
+
+  <h2>9.1 Autenticação e sessão</h2>
+  <p>
+    A configuração do Auth.js é deliberadamente cindida em dois módulos, exigência
+    do <em>Edge Runtime</em>, que não executa Prisma nem bcrypt:
+  </p>
+  <table>
+    <tr><th style="width:40mm">Módulo</th><th style="width:24mm">Ambiente</th><th>Responsabilidade</th></tr>
+    <tr><td><code>auth.config.ts</code></td><td>Edge</td><td>Autorização de rotas e <em>callbacks</em> de sessão. Sem dependências de Node.</td></tr>
+    <tr><td><code>lib/auth.ts</code></td><td>Node</td><td><em>Provider</em> de credenciais, consulta ao banco e comparação bcrypt.</td></tr>
+  </table>
+
+  <h2>9.2 Controles implementados</h2>
+  <table>
+    <tr><th style="width:44mm">Controle</th><th>Implementação</th></tr>
+    <tr><td>Armazenamento de senha</td><td>bcrypt com fator de custo 10. A senha em claro nunca é persistida nem registrada em <em>log</em>.</td></tr>
+    <tr><td>Isolamento entre usuárias</td><td>Toda consulta e mutação filtra por <code>userId</code> da sessão. As exclusões empregam <code>deleteMany({ where: { id, userId } })</code>, tornando inócua a manipulação de identificadores.</td></tr>
+    <tr><td>Proteção de rotas</td><td><em>Middleware</em> nega acesso a <code>/painel</code> sem sessão; o layout autenticado impõe adicionalmente a conclusão do onboarding.</td></tr>
+    <tr><td>Validação de entrada</td><td>Esquemas Zod na fronteira de toda ação e <em>route handler</em>.</td></tr>
+    <tr><td>Mensagens de erro</td><td>Falha de autenticação retorna texto genérico, sem revelar a existência do e-mail.</td></tr>
+    <tr><td>Supressão em exportações</td><td><code>passwordHash</code> e <code>pinHash</code> são removidos do JSON de exportação.</td></tr>
+    <tr><td>Sessão órfã</td><td>Sessão apontando para usuária inexistente aciona encerramento automático em <code>/api/logout</code>, em lugar de falha de execução.</td></tr>
+    <tr><td>Segredos</td><td><code>AUTH_SECRET</code> e <code>OPENAI_API_KEY</code> permanecem exclusivamente no servidor; <code>.env</code> é ignorado pelo controle de versão.</td></tr>
+  </table>
+
+  <h2>9.3 Aderência à LGPD</h2>
+  <table>
+    <tr><th style="width:52mm">Direito do titular (Lei 13.709/2018)</th><th>Atendimento</th></tr>
+    <tr><td>Acesso aos dados (art. 18, II)</td><td><code>GET /api/export</code> — cópia integral em JSON.</td></tr>
+    <tr><td>Eliminação (art. 18, VI)</td><td>Exclusão de conta com cascata em todas as entidades.</td></tr>
+    <tr><td>Correção (art. 18, III)</td><td>Edição e remoção de registros nas respectivas telas.</td></tr>
+    <tr><td>Transparência (art. 9.º)</td><td>Tela <code>/painel/assistente/memoria</code> expõe integralmente o que a IA armazenou.</td></tr>
+    <tr><td>Minimização (art. 6.º, III)</td><td>Coleta restrita ao necessário; data de nascimento é facultativa.</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>Ressalvas de segurança para produção.</strong> A versão atual é
+    adequada a desenvolvimento e demonstração. Antes da operação com dados reais
+    são requisitos: (i) migração para PostgreSQL com criptografia em repouso;
+    (ii) tráfego exclusivamente sob HTTPS; (iii) limitação de taxa nas rotas de
+    autenticação e de chat; (iv) verificação de e-mail e recuperação de senha;
+    (v) rotação de <code>AUTH_SECRET</code>; (vi) política de privacidade e termo
+    de consentimento; (vii) conclusão da tela de bloqueio por PIN; (viii)
+    avaliação do envio de dados de saúde a serviço de terceiro (OpenAI) à luz do
+    consentimento obtido.
+  </div>
+</section>
+
+<!-- ============ 10. INTERFACES ============ -->
+<section class="page-break">
+  <h1>10. Interfaces de programação</h1>
+
+  <h2>10.1 Route Handlers</h2>
+  <table>
+    <tr><th style="width:14mm">Método</th><th style="width:44mm">Rota</th><th>Descrição e respostas</th></tr>
+    <tr>
+      <td><code>POST</code></td><td><code>/api/chat</code></td>
+      <td>Diálogo com a assistente. Corpo: <code>{ conversationId, message }</code>. Respostas: <code>200</code> (<em>stream</em> de texto), <code>400</code> (entrada inválida), <code>401</code> (sem sessão), <code>404</code> (conversa de outra usuária), <code>503</code> (chave ausente).</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td><td><code>/api/export</code></td>
+      <td>Exportação integral em JSON, como anexo. <code>200</code> · <code>401</code> · <code>404</code>.</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td><td><code>/api/logout</code></td>
+      <td>Encerra a sessão e redireciona a <code>/login</code>. Usado na recuperação de sessão órfã.</td>
+    </tr>
+    <tr>
+      <td><code>GET/POST</code></td><td><code>/api/auth/[...nextauth]</code></td>
+      <td><em>Endpoints</em> do Auth.js (CSRF, <em>callback</em> de credenciais, sessão).</td>
+    </tr>
+  </table>
+
+  <h2>10.2 Server Actions</h2>
+  <p>
+    Vinte e seis ações agrupadas por domínio em <code>src/server/actions/</code>.
+    Todas exigem sessão válida (<code>requireUser()</code>), validam a entrada e
+    invalidam o cache das rotas afetadas.
+  </p>
+  <table>
+    <tr><th style="width:30mm">Módulo</th><th>Ações</th></tr>
+    <tr><td><code>auth.ts</code></td><td><code>registerAction</code>, <code>loginAction</code>, <code>logoutAction</code></td></tr>
+    <tr><td><code>onboarding.ts</code></td><td><code>completeOnboardingAction</code></td></tr>
+    <tr><td><code>cycle.ts</code></td><td><code>addCycleAction</code>, <code>deleteCycleAction</code></td></tr>
+    <tr><td><code>pregnancy.ts</code></td><td><code>upsertPregnancyAction</code>, <code>endPregnancyAction</code></td></tr>
+    <tr><td><code>mood.ts</code></td><td><code>addMoodAction</code>, <code>deleteMoodAction</code></td></tr>
+    <tr><td><code>daily.ts</code></td><td><code>addDailyLogAction</code>, <code>deleteDailyLogAction</code></td></tr>
+    <tr><td><code>reminders.ts</code></td><td><code>addReminderAction</code>, <code>toggleReminderAction</code>, <code>deleteReminderAction</code></td></tr>
+    <tr><td><code>health.ts</code></td><td><code>addMetricAction</code>, <code>deleteMetricAction</code>, <code>togglePillTodayAction</code>, <code>logSelfExamAction</code></td></tr>
+    <tr><td><code>chat.ts</code></td><td><code>createConversationAction</code>, <code>deleteConversationAction</code>, <code>clearMemoriesAction</code></td></tr>
+    <tr><td><code>settings.ts</code></td><td><code>updateGoalAction</code>, <code>setPinAction</code>, <code>removePinAction</code>, <code>deleteAccountAction</code></td></tr>
+  </table>
+
+  <h2>10.3 Variáveis de ambiente</h2>
+  <table>
+    <tr><th style="width:40mm">Variável</th><th style="width:20mm">Obrigatória</th><th>Finalidade</th></tr>
+    <tr><td><code>DATABASE_URL</code></td><td>Sim</td><td>Conexão do Prisma. Em desenvolvimento, <code>file:./dev.db</code>.</td></tr>
+    <tr><td><code>AUTH_SECRET</code></td><td>Sim</td><td>Assinatura do JWT de sessão. Deve ser rotacionada em produção.</td></tr>
+    <tr><td><code>AUTH_URL</code></td><td>Sim</td><td>URL base para os <em>callbacks</em> do Auth.js.</td></tr>
+    <tr><td><code>OPENAI_API_KEY</code></td><td>Para o chat</td><td>Credencial da OpenAI. Variáveis reais do ambiente têm precedência sobre <code>.env</code>.</td></tr>
+    <tr><td><code>OPENAI_MODEL</code></td><td>Não</td><td>Modelo a utilizar. Padrão: <code>gpt-4o-mini</code>.</td></tr>
+  </table>
+</section>
+
+<!-- ============ 11. QUALIDADE ============ -->
+<section class="page-break">
+  <h1>11. Qualidade e verificação</h1>
+
+  <h2>11.1 Verificações automatizadas</h2>
+  <table>
+    <tr><th style="width:44mm">Verificação</th><th style="width:36mm">Comando</th><th>Resultado</th></tr>
+    <tr><td>Tipagem estática</td><td><code>npm run typecheck</code></td><td>Sem erros</td></tr>
+    <tr><td>Análise estática</td><td><code>npm run lint</code></td><td>Sem advertências</td></tr>
+    <tr><td><em>Build</em> de produção</td><td><code>npm run build</code></td><td>Concluído — 30 rotas</td></tr>
+  </table>
+
+  <h2>11.2 Verificação funcional executada</h2>
+  <p>
+    A camada de IA foi exercitada contra a API real da OpenAI, e não apenas
+    simulada. Registro das evidências:
+  </p>
+  <table>
+    <tr><th style="width:52mm">Cenário</th><th>Evidência observada</th></tr>
+    <tr><td>Resposta com dados da usuária</td><td>“Hoje é o dia 37 do seu ciclo, e você está na fase lútea” — valores coincidentes com os registros do banco.</td></tr>
+    <tr><td><em>Streaming</em> progressivo</td><td>Texto exibido em fragmentos, sem espera pela resposta completa.</td></tr>
+    <tr><td>Persistência do diálogo</td><td>Par de mensagens gravado; título da conversa derivado da primeira mensagem.</td></tr>
+    <tr><td>Isolamento entre conversas</td><td>Conversa recém-criada apresenta histórico vazio.</td></tr>
+    <tr><td>Memória entre conversas</td><td>Em nova conversa, a assistente respondeu “Sim, você me contou que tem endometriose”.</td></tr>
+    <tr><td>Extração de memória</td><td>Após a correção do <em>prompt</em>: gravados “Tem endometriose”, “Costuma ter cólica forte no primeiro dia” e “Usa DIU de cobre”; descartado o dia do ciclo.</td></tr>
+    <tr><td>Requisição sem sessão</td><td><code>401</code> — “Não autorizado.”</td></tr>
+    <tr><td>Conversa de outra usuária</td><td><code>404</code> — “Conversa não encontrada.”</td></tr>
+    <tr><td>Recuperação de sessão órfã</td><td>Redirecionamento ao <em>login</em>, sem falha de execução.</td></tr>
+    <tr><td>Rotas autenticadas</td><td>As vinte telas do painel responderam <code>200</code>.</td></tr>
+  </table>
+
+  <div class="note neutral">
+    <strong>Lacuna reconhecida.</strong> Não há, nesta versão, suíte de testes
+    automatizados. As verificações acima foram conduzidas manualmente e por
+    inspeção instrumentada do DOM e do banco. Recomenda-se, como prioridade
+    técnica: testes unitários das funções puras de <code>lib/utils.ts</code> —
+    <code>predictCycle</code>, <code>cycleStats</code>,
+    <code>pregnancyProgress</code> e <code>currentStreak</code> concentram as
+    regras de negócio e são determinísticas — seguidos de testes de ponta a ponta
+    dos fluxos de autenticação e de conversa.
+  </div>
+</section>
+
+<!-- ============ 12. IMPLANTAÇÃO ============ -->
+<section class="page-break">
+  <h1>12. Implantação e operação</h1>
+
+  <h2>12.1 Ambiente local</h2>
+  <pre>npm install                  # instala dependências
+cp .env.example .env         # configura variáveis
+npx auth secret              # gera AUTH_SECRET
+npm run db:push              # aplica o schema ao banco
+npm run db:seed              # popula dados de demonstração
+npm run dev                  # inicia em http://localhost:3000</pre>
+
+  <h2>12.2 Scripts disponíveis</h2>
+  <table>
+    <tr><th style="width:44mm">Script</th><th>Função</th></tr>
+    <tr><td><code>npm run dev</code></td><td>Servidor de desenvolvimento com <em>hot reload</em>.</td></tr>
+    <tr><td><code>npm run build</code></td><td><code>prisma generate</code> seguido do <em>build</em> de produção.</td></tr>
+    <tr><td><code>npm start</code></td><td>Servidor de produção.</td></tr>
+    <tr><td><code>npm run typecheck</code></td><td>Verificação de tipos sem emissão.</td></tr>
+    <tr><td><code>npm run lint</code></td><td>Análise estática.</td></tr>
+    <tr><td><code>npm run db:push</code></td><td>Sincroniza o <em>schema</em> com o banco.</td></tr>
+    <tr><td><code>npm run db:seed</code></td><td>Insere a usuária de demonstração e registros de exemplo.</td></tr>
+    <tr><td><code>npm run db:studio</code></td><td>Interface de inspeção do banco.</td></tr>
+    <tr><td><code>npm run db:reset</code></td><td>Recria o banco e reexecuta o <em>seed</em>.</td></tr>
+  </table>
+
+  <h2>12.3 Migração a produção</h2>
+  <ol>
+    <li>Alterar <code>provider</code> para <code>postgresql</code> em <code>schema.prisma</code> e apontar <code>DATABASE_URL</code> à instância gerenciada. A modelagem não emprega recursos exclusivos do SQLite, dispensando conversão de tipos.</li>
+    <li>Substituir <code>db push</code> por migrações versionadas (<code>prisma migrate deploy</code>).</li>
+    <li>Provisionar as variáveis de ambiente na plataforma de hospedagem, com <code>AUTH_SECRET</code> inédito.</li>
+    <li>Implantar em plataforma compatível com Next.js 15 (Vercel ou contêiner Node).</li>
+    <li>Habilitar limitação de taxa nas rotas <code>/api/auth</code> e <code>/api/chat</code>.</li>
+    <li>Instrumentar monitoramento de erros e observabilidade de custo da API da OpenAI.</li>
+  </ol>
+
+  <div class="note neutral">
+    <strong>Nota operacional (ambiente Windows).</strong> O <em>build</em> falha
+    com <code>EPERM</code> ao renomear <code>query_engine-windows.dll.node</code>
+    quando o servidor de desenvolvimento está em execução, pois o arquivo
+    permanece bloqueado. Encerrar o processo <code>dev</code> antes de executar
+    <code>npm run build</code>.
+  </div>
+</section>
+
+<!-- ============ 13. LIMITAÇÕES ============ -->
+<section class="page-break">
+  <h1>13. Limitações conhecidas e evolução</h1>
+
+  <h2>13.1 Limitações da versão 1.0</h2>
+  <table>
+    <tr><th style="width:44mm">Item</th><th>Situação e implicação</th></tr>
+    <tr><td>PIN de bloqueio</td><td>O PIN é definido e armazenado como <em>hash</em>, porém a tela que o solicita na abertura ainda não existe — o controle é, na prática, inoperante.</td></tr>
+    <tr><td>Recuperação de senha</td><td>Não implementada. A perda da senha implica perda de acesso à conta.</td></tr>
+    <tr><td>Verificação de e-mail</td><td>Ausente. Endereços não são confirmados no cadastro.</td></tr>
+    <tr><td>Insights</td><td>Heurísticos e determinísticos; não empregam modelo de linguagem nem aprendizado estatístico.</td></tr>
+    <tr><td>Dados locais</td><td>Serviços públicos, campanhas e pontos de distribuição são orientativos; endereços e horários oficiais ainda não integrados.</td></tr>
+    <tr><td>Testes automatizados</td><td>Inexistentes (ver seção 11.2).</td></tr>
+    <tr><td>Latência da memória</td><td>A extração ocorre antes do encerramento do <em>stream</em>, adicionando 1 a 2 segundos ao final da requisição. Opção deliberada por confiabilidade da gravação; a resposta já se encontra visível.</td></tr>
+    <tr><td>Notificações</td><td>Lembretes são exibidos apenas no aplicativo; não há envio <em>push</em>.</td></tr>
+    <tr><td>Internacionalização</td><td>Interface exclusivamente em português do Brasil, sem camada de tradução.</td></tr>
+  </table>
+
+  <h2>13.2 Evolução planejada</h2>
+  <table>
+    <tr><th style="width:22mm">Horizonte</th><th>Iniciativas</th></tr>
+    <tr><td>Curto</td><td>Tela de bloqueio por PIN; recuperação de senha; testes unitários das funções de domínio; gráficos de séries temporais; modo escuro.</td></tr>
+    <tr><td>Médio</td><td>Migração a PostgreSQL e implantação; notificações <em>push</em> e PWA instalável; edição de registros; contador de contrações e de movimentos fetais; módulo pós-parto.</td></tr>
+    <tr><td>Longo</td><td>Modo anônimo; compartilhamento com acompanhante; integração de dados oficiais da Secretaria Municipal de Saúde; assinatura Premium; <em>marketplace</em> de parceiros; painel de indicadores agregados para gestão pública.</td></tr>
+  </table>
+</section>
+
+<!-- ============ 14. GLOSSÁRIO ============ -->
+<section class="page-break">
+  <h1>14. Glossário</h1>
+  <table>
+    <tr><th style="width:44mm">Termo</th><th>Definição</th></tr>
+    <tr><td>App Router</td><td>Sistema de roteamento do Next.js baseado na estrutura de diretórios, com renderização no servidor por padrão.</td></tr>
+    <tr><td>bcrypt</td><td>Função de derivação de chave para senhas, com fator de custo ajustável.</td></tr>
+    <tr><td>DPP</td><td>Data provável do parto, estimada em 280 dias a partir da DUM.</td></tr>
+    <tr><td>DUM</td><td>Data da última menstruação; referência do cálculo gestacional.</td></tr>
+    <tr><td>Edge Runtime</td><td>Ambiente de execução restrito, próximo ao usuário, sem APIs completas do Node.</td></tr>
+    <tr><td>Fase lútea</td><td>Etapa do ciclo entre a ovulação e a menstruação seguinte, de duração relativamente estável.</td></tr>
+    <tr><td>Janela fértil</td><td>Intervalo de maior probabilidade de concepção, estimado entre cinco dias antes e um dia após a ovulação.</td></tr>
+    <tr><td>JWT</td><td><em>JSON Web Token</em>; formato de credencial assinada empregado na sessão.</td></tr>
+    <tr><td>LGPD</td><td>Lei Geral de Proteção de Dados Pessoais (Lei 13.709/2018).</td></tr>
+    <tr><td>Prompt de sistema</td><td>Instrução inicial que estabelece papel, tom e limites do modelo de linguagem.</td></tr>
+    <tr><td>Server Action</td><td>Função executada no servidor, invocável diretamente por formulários, sem endpoint explícito.</td></tr>
+    <tr><td>SSE</td><td><em>Server-Sent Events</em>; protocolo de envio progressivo empregado no <em>streaming</em> da assistente.</td></tr>
+    <tr><td>Streaming</td><td>Entrega incremental da resposta, exibida à medida que é gerada.</td></tr>
+    <tr><td>UBS</td><td>Unidade Básica de Saúde, porta de entrada da atenção primária no SUS.</td></tr>
+    <tr><td>Zod</td><td>Biblioteca de validação de esquemas que também origina os tipos TypeScript correspondentes.</td></tr>
+  </table>
+
+  <div style="margin-top:14mm; border-top:2px solid #ef4a57; padding-top:4mm; font-size:9pt; color:#6b6360;">
+    <p style="margin:0"><strong style="color:#262322">Canaã Delas AI</strong> — Documentação Técnica, versão 1.0 · emitida em 05 de agosto de 2026.</p>
+    <p style="margin:1mm 0 0">Documento gerado a partir da inspeção direta do código-fonte. Os resultados de verificação relatados na seção 11 correspondem a execuções efetivamente realizadas.</p>
+  </div>
+</section>
+
+</body>
+</html>

@@ -11,6 +11,7 @@ import {
   PinForm,
   DeleteAccount,
 } from "@/components/features/settings-forms";
+import { MascoteSwitch } from "@/components/features/mascote-config";
 
 export const metadata: Metadata = { title: "Configurações" };
 
@@ -36,6 +37,17 @@ export default async function ConfiguracoesPage() {
           </CardDescription>
           <div className="mt-4">
             <GoalForm current={user?.goal ?? null} />
+          </div>
+        </Card>
+
+        <Card>
+          <CardTitle>Mascote</CardTitle>
+          <CardDescription>
+            Aparece de vez em quando no canto da tela com avisos da cidade,
+            dicas de saúde e lembretes do app. Nunca aparece na Proteção.
+          </CardDescription>
+          <div className="mt-4">
+            <MascoteSwitch userId={sessionUser.id} />
           </div>
         </Card>
 

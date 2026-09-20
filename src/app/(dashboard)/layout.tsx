@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { requireUser } from "@/lib/session";
@@ -7,21 +6,6 @@ import { ehAdministrativo } from "@core/papeis";
 import { Sidebar, MobileNav, MobileSectionNav } from "@/components/layout/sidebar";
 import { UserMenu } from "@/components/layout/user-menu";
 import { Logo } from "@/components/layout/logo";
-import { Mascote } from "@/components/features/mascote";
-import { montarMensagensMascote } from "@/server/mascote";
-
-/**
- * Busca o que o mascote pode dizer e o entrega ao componente do navegador.
- *
- * Fica dentro de <Suspense>: são sete consultas, e nenhuma delas pode segurar
- * a primeira pintura da página. O conteúdo chega primeiro; o mascote, que só
- * aparece depois de alguns segundos de qualquer jeito, chega em seguida.
- */
-async function MascoteDaUsuaria({ userId }: { userId: string }) {
-  const mensagens = await montarMensagensMascote(userId);
-  if (mensagens.length === 0) return null;
-  return <Mascote userId={userId} mensagens={mensagens} />;
-}
 
 export default async function DashboardLayout({
   children,
@@ -72,10 +56,6 @@ export default async function DashboardLayout({
       </div>
 
       <MobileNav />
-
-      <Suspense fallback={null}>
-        <MascoteDaUsuaria userId={user.id} />
-      </Suspense>
     </div>
   );
 }

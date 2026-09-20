@@ -4,7 +4,7 @@
 // ou DOM. Aqui mora a REGRA — que mensagens existem, quem ganha a vez e quanto
 // tempo até uma poder se repetir. Quem desenha o mascote é cada ponta.
 //
-// Duas decisões que não são estéticas:
+// Três decisões que não são estéticas:
 //
 // 1. Nenhuma mensagem pertence ao pilar Proteção, e o tipo impede:
 //    `PilarMascote` exclui "protecao". Um balão que aparece sozinho, com
@@ -14,7 +14,12 @@
 // 2. Nada daqui vai para servidor. O que já foi mostrado fica só no aparelho,
 //    e o que se guarda é um hash do id da mensagem, nunca o id: um id como
 //    "gestacao:semana:20" dentro do navegador seria um rastro.
+//
+// 3. O mascote também fala com quem ainda não tem conta — mas só com o que é
+//    público: as campanhas da Prefeitura (a API delas já é aberta de
+//    propósito) e dicas gerais. Nada pessoal sai para um visitante.
 
+import { situacaoDaAcao, type CityAction } from "./apoio";
 import type { PilarValue } from "./pilares";
 
 export type PilarMascote = Exclude<PilarValue, "protecao">;
@@ -86,6 +91,12 @@ export function rotaCombina(rota: string, prefixos: readonly string[]): boolean 
   return prefixos.some((p) => rota === p || rota.startsWith(`${p}/`));
 }
 
+/** 1 a 366 — a semente da "dica do dia". */
+export function diaDoAnoDe(d: Date): number {
+  const inicio = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d.getTime() - inicio.getTime()) / 86_400_000);
+}
+
 /* ══════════════ escolha da mensagem ══════════════ */
 
 export interface ContextoEscolha {
@@ -133,6 +144,60 @@ export function escolherMensagem(
   return melhor;
 }
 
+/* ══════════════ validação (o navegador recebe JSON do servidor) ══════════════ */
+
+const PILARES_ACEITOS: readonly string[] = ["saude", "comunidade", "ia"];
+const EMOCOES: readonly string[] = ["feliz", "atenta", "comemorando"];
+
+const ausente = (v: unknown) => v === undefined || v === null;
+
+/** Só caminho interno do app: nada de `https://…`, `//host` ou `javascript:`. */
+function hrefInterno(h: unknown): h is string {
+  return (
+    typeof h === "string" &&
+    h.length <= 200 &&
+    h.startsWith("/") &&
+    !h.startsWith("//") &&
+    !h.includes("\\")
+  );
+}
+
+function listaDeTextos(v: unknown): boolean {
+  return ausente(v) || (Array.isArray(v) && v.every((s) => typeof s === "string"));
+}
+
+/**
+ * Confere a forma de uma mensagem que veio de fora.
+ *
+ * O mascote agora consome JSON de `/api/v1/mascote`. O servidor é nosso, mas o
+ * que o navegador desenha e o que ele deixa clicar não deve depender de a
+ * resposta estar íntegra: pilar de Proteção, link para outro site e texto
+ * gigante são recusados aqui, não confiados.
+ */
+export function ehMensagemValida(x: unknown): x is MascoteMensagem {
+  if (!x || typeof x !== "object") return false;
+  const m = x as Record<string, unknown>;
+
+  if (typeof m.id !== "string" || m.id.length === 0 || m.id.length > 120) return false;
+  if (typeof m.pilar !== "string" || !PILARES_ACEITOS.includes(m.pilar)) return false;
+  if (typeof m.rotulo !== "string" || m.rotulo.length === 0 || m.rotulo.length > 40) return false;
+  if (!ausente(m.titulo) && (typeof m.titulo !== "string" || m.titulo.length > 90)) return false;
+  if (typeof m.texto !== "string" || m.texto.length === 0 || m.texto.length > 200) return false;
+  if (typeof m.prioridade !== "number" || !Number.isFinite(m.prioridade)) return false;
+  if (typeof m.repetirEmHoras !== "number" || !Number.isFinite(m.repetirEmHoras)) return false;
+  if (!listaDeTextos(m.rotas) || !listaDeTextos(m.evitarEm)) return false;
+  if (!ausente(m.emocao) && !EMOCOES.includes(m.emocao as string)) return false;
+
+  if (!ausente(m.cta)) {
+    const c = m.cta as Record<string, unknown>;
+    if (!c || typeof c !== "object") return false;
+    if (typeof c.rotulo !== "string" || c.rotulo.length === 0 || c.rotulo.length > 30) return false;
+    if (!hrefInterno(c.href)) return false;
+  }
+
+  return true;
+}
+
 /* ══════════════ assuntos que não sobem para o balão ══════════════ */
 
 /**
@@ -150,6 +215,56 @@ export const ASSUNTOS_INTIMOS =
 /** Só o que pode aparecer no balão. */
 export function semAssuntosIntimos(textos: readonly string[]): string[] {
   return textos.filter((t) => !ASSUNTOS_INTIMOS.test(t));
+}
+
+/* ══════════════ da cidade ══════════════ */
+
+export type AcaoDaCidade = Pick<
+  CityAction,
+  "id" | "title" | "summary" | "location" | "startsAt" | "endsAt" | "pinned"
+>;
+
+/**
+ * As campanhas vivas da Prefeitura, como mensagens.
+ *
+ * Serve a quem tem conta e a quem não tem: a API de ações da cidade é pública
+ * de propósito ("a informação existe justamente para alcançar quem ainda não
+ * está dentro"), então o mascote pode anunciá-las para qualquer visitante.
+ */
+export function mensagensDaCidade(
+  acoes: readonly AcaoDaCidade[],
+  agora: Date = new Date(),
+): MascoteMensagem[] {
+  return acoes
+    .filter((a) => situacaoDaAcao(a, agora) !== "encerrada")
+    .slice(0, 3)
+    .map((a) => {
+      const situacao = situacaoDaAcao(a, agora);
+      const quando =
+        situacao === "hoje"
+          ? "É hoje"
+          : situacao === "emBreve"
+            ? "Em breve"
+            : "Acontecendo";
+
+      return {
+        id: `cidade:${a.id}:${situacao}`,
+        pilar: "comunidade" as const,
+        rotulo: "Da cidade",
+        titulo: textoCurto(a.title, 70),
+        texto: textoCurto(
+          `${quando}${a.location ? ` · ${a.location}` : ""}. ${a.summary}`,
+          130,
+        ),
+        // Sem conta, /painel/cidade leva ao login — e a campanha é pública.
+        // Para visitante o botão é removido (ver `cidadeParaVisitante`).
+        cta: { rotulo: "Ver detalhes", href: "/painel/cidade" },
+        prioridade: situacao === "hoje" ? 90 : a.pinned ? 85 : 60,
+        repetirEmHoras: situacao === "hoje" ? 6 : 24,
+        evitarEm: ["/painel/cidade"],
+        emocao: situacao === "hoje" ? ("atenta" as const) : ("feliz" as const),
+      };
+    });
 }
 
 /* ══════════════ dicas de saúde ══════════════ */
@@ -286,4 +401,59 @@ export function dicasParaHoje(diaDoAno: number): MascoteMensagem[] {
       emocao: "feliz" as const,
     };
   });
+}
+
+/* ══════════════ para quem não tem conta ══════════════ */
+
+/**
+ * Tira o botão de quem só leva a uma tela do painel.
+ *
+ * Sem conta, esses links terminam numa tela de login — um beco sem saída no
+ * meio de uma dica. A mensagem continua útil sem o botão.
+ */
+function semBotaoDoPainel(m: MascoteMensagem): MascoteMensagem {
+  return m.cta?.href.startsWith("/painel")
+    ? { ...m, cta: undefined, evitarEm: undefined }
+    : m;
+}
+
+/**
+ * As dicas gerais, sem botão para o painel.
+ *
+ * É também o que o mascote usa quando não consegue falar com o servidor: não
+ * sabe se quem está ali tem conta, e dica geral serve a qualquer uma.
+ */
+export function dicasGerais(diaDoAno: number): MascoteMensagem[] {
+  return dicasParaHoje(diaDoAno).map(semBotaoDoPainel);
+}
+
+/** As campanhas da cidade que um visitante pode receber. */
+export function cidadeParaVisitante(
+  acoes: readonly AcaoDaCidade[],
+  agora: Date = new Date(),
+): MascoteMensagem[] {
+  return mensagensDaCidade(acoes, agora).map(semBotaoDoPainel);
+}
+
+/**
+ * O que o mascote diz a quem ainda não fez login: um convite, com o que o app
+ * promete — e é o único texto daqui que fala do produto. Só o que já está dito
+ * na tela de Configurações e na de cadastro; nada que o app não faça.
+ */
+export function mensagensParaVisitante(diaDoAno: number): MascoteMensagem[] {
+  const convite: MascoteMensagem = {
+    id: "visitante:conta",
+    pilar: "saude",
+    rotulo: "Canaã Delas",
+    titulo: "Seus registros são só seus",
+    texto:
+      "Ciclo, humor e lembretes ficam com você: dá para bloquear com PIN e baixar uma cópia quando quiser. Criar a conta é gratuito.",
+    cta: { rotulo: "Criar conta", href: "/cadastro" },
+    prioridade: 45,
+    repetirEmHoras: 24 * 7,
+    evitarEm: ["/cadastro", "/login"],
+    emocao: "feliz",
+  };
+
+  return [convite, ...dicasGerais(diaDoAno)];
 }

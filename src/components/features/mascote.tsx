@@ -6,9 +6,13 @@ import { usePathname } from "next/navigation";
 
 import {
   chaveDaMensagem,
+  dicasGerais,
+  diaDoAnoDe,
+  ehMensagemValida,
   escolherMensagem,
   MASCOTE_INTERVALO_MIN,
   MASCOTE_LIMITE_POR_DIA,
+  rotaCombina,
   type EmocaoMascote,
   type MascoteMensagem,
 } from "@core/mascote";
@@ -29,6 +33,10 @@ import styles from "./mascote.module.css";
 /** Espera depois de abrir a página antes de aparecer: deixa ela ler primeiro. */
 const ATRASO_INICIAL_MS = 2500;
 const SAIDA_MS = 380;
+/** Por quanto tempo as mensagens buscadas valem, sem perguntar de novo. */
+const MEMORIA_MS = 10 * 60_000;
+/** Servidor que não responde não pode deixar o mascote pendurado. */
+const LIMITE_DA_BUSCA_MS = 6_000;
 
 /**
  * Telas em que o mascote não aparece.
@@ -37,44 +45,61 @@ const SAIDA_MS = 380;
  *   despercebida trairia quem está ali (ver `PilarMascote`).
  * - Assistente: o campo de digitar fica no rodapé, onde ele pousaria.
  * - Relatório: é uma folha para imprimir e levar à consulta.
+ * - /admin: é ferramenta de trabalho da equipe — fila de moderação, auditoria.
+ *   Se quiser o mascote aí também, é só tirar `/admin` da lista.
+ *
+ * Todo o resto — landing, login, cadastro, painel — recebe o mascote.
  */
 const PILARES_SEM_MASCOTE = ["protecao", "ia"];
-const ROTAS_SEM_MASCOTE = ["/painel/relatorio"];
+const ROTAS_SEM_MASCOTE = ["/painel/relatorio", "/admin"];
+
+/** Rotas que só existem com sessão: nelas, as mensagens são pessoais. */
+const ROTAS_COM_SESSAO = ["/painel", "/comecar"];
+
+interface Memoria {
+  em: number;
+  /** "conta" ou "publico" — o que vale para um não vale para o outro. */
+  contexto: string;
+  mensagens: MascoteMensagem[];
+}
 
 /**
  * Mascote no canto da tela — chega, fala e vai embora.
  *
- * A decisão do que mostrar é local: nenhuma chamada de rede, nenhum registro.
- * Ver `packages/core/mascote.ts` e `src/lib/mascote-storage.ts`.
+ * Fica montado no layout raiz e funciona para quem ainda não entrou. Como o
+ * layout raiz é estático (não lê a sessão), o mascote pergunta ao servidor o
+ * que dizer só depois que a página carregou — e o servidor responde conforme
+ * quem pergunta (ver `/api/v1/mascote`).
+ *
+ * A decisão de mostrar é local: limite diário, intervalo e o que já foi visto
+ * ficam no aparelho. Nenhum registro, nenhuma métrica.
  */
-export function Mascote({
-  userId,
-  mensagens,
-}: {
-  userId: string;
-  mensagens: MascoteMensagem[];
-}) {
+export function Mascote() {
   const pathname = usePathname();
   const estado = useRef<EstadoMascote | null>(null);
+  const memoria = useRef<Memoria | null>(null);
   const timerSaida = useRef<number | undefined>(undefined);
 
   const [pronto, setPronto] = useState(false);
   const [desligado, setDesligado] = useState(false);
+  const [mensagens, setMensagens] = useState<MascoteMensagem[]>([]);
   const [atual, setAtual] = useState<MascoteMensagem | null>(null);
   const [saindo, setSaindo] = useState(false);
   const [pausado, setPausado] = useState(false);
 
-  const pilarDaTela = pilarDaRota(pathname);
+  const emPainel = rotaCombina(pathname, ["/painel"]);
+  const contexto = rotaCombina(pathname, ROTAS_COM_SESSAO) ? "conta" : "publico";
+  const pilarDaTela = emPainel ? pilarDaRota(pathname) : null;
   const rotaOculta =
     (pilarDaTela !== null && PILARES_SEM_MASCOTE.includes(pilarDaTela)) ||
-    ROTAS_SEM_MASCOTE.some((r) => pathname === r || pathname.startsWith(`${r}/`));
+    rotaCombina(pathname, ROTAS_SEM_MASCOTE);
 
   const digitados = useDigitacao(atual?.texto ?? "", atual !== null);
 
   /* ── 1. Lê o estado guardado neste aparelho ─────────────────────────── */
   useEffect(() => {
     const ler = () => {
-      const lido = lerEstado(userId);
+      const lido = lerEstado();
       estado.current = lido;
       setDesligado(lido.desligado);
       setPronto(true);
@@ -87,7 +112,7 @@ export function Mascote({
       window.removeEventListener(EVENTO_MASCOTE, ler);
       window.removeEventListener("storage", ler);
     };
-  }, [userId]);
+  }, []);
 
   useEffect(() => () => window.clearTimeout(timerSaida.current), []);
 
@@ -103,14 +128,14 @@ export function Mascote({
         est.hoje += 1;
         est.ultima = agora;
       }
-      salvarEstado(userId, est);
+      salvarEstado(est);
 
       window.clearTimeout(timerSaida.current);
       setSaindo(false);
       setPausado(false);
       setAtual(msg);
     },
-    [userId],
+    [],
   );
 
   const fechar = useCallback(() => {
@@ -127,9 +152,57 @@ export function Mascote({
   useEffect(() => {
     if (!pronto || desligado || rotaOculta || atual) return;
 
-    const timer = window.setTimeout(() => {
+    const controle = new AbortController();
+    let cancelado = false;
+
+    /** As mensagens de agora: da memória, do servidor ou, sem rede, as gerais. */
+    const obterMensagens = async (): Promise<MascoteMensagem[] | null> => {
+      const guardada = memoria.current;
+      if (
+        guardada &&
+        guardada.contexto === contexto &&
+        Date.now() - guardada.em < MEMORIA_MS
+      ) {
+        return guardada.mensagens;
+      }
+
+      const limite = window.setTimeout(() => controle.abort(), LIMITE_DA_BUSCA_MS);
+      let lista: MascoteMensagem[];
+
+      try {
+        const resposta = await fetch("/api/v1/mascote", {
+          cache: "no-store",
+          credentials: "same-origin",
+          headers: { Accept: "application/json" },
+          signal: controle.signal,
+        });
+        if (!resposta.ok) throw new Error(`status ${resposta.status}`);
+
+        const corpo: unknown = await resposta.json();
+        const bruto =
+          corpo && typeof corpo === "object"
+            ? (corpo as { mensagens?: unknown }).mensagens
+            : null;
+        lista = Array.isArray(bruto) ? bruto.filter(ehMensagemValida) : [];
+      } catch {
+        // Cancelado por troca de tela: quem chamou já não está esperando.
+        if (controle.signal.aborted && cancelado) return null;
+        // Sem rede ou servidor fora: não dá para saber se há conta, então só
+        // o que serve a qualquer pessoa.
+        lista = dicasGerais(diaDoAnoDe(new Date()));
+      } finally {
+        window.clearTimeout(limite);
+      }
+
+      memoria.current = { em: Date.now(), contexto, mensagens: lista };
+      return lista;
+    };
+
+    const timer = window.setTimeout(async () => {
       const est = estado.current;
       if (!est) return;
+      // Aba em segundo plano: ninguém para ver, e nada a gastar.
+      if (document.visibilityState !== "visible") return;
 
       const agora = Date.now();
       const dia = diaLocal(agora);
@@ -138,19 +211,28 @@ export function Mascote({
         est.hoje = 0;
       }
 
+      // Os limites valem ANTES da busca: quem já viu o bastante hoje não
+      // custa uma requisição ao servidor.
       if (est.hoje >= MASCOTE_LIMITE_POR_DIA) return;
       if (agora - est.ultima < MASCOTE_INTERVALO_MIN * 60_000) return;
 
-      const msg = escolherMensagem(mensagens, {
+      const lista = await obterMensagens();
+      if (cancelado || !lista) return;
+
+      setMensagens(lista);
+      const msg = escolherMensagem(lista, {
         rota: pathname,
         vistas: est.vistas,
-        agora,
       });
       if (msg) mostrar(msg, true);
     }, ATRASO_INICIAL_MS);
 
-    return () => window.clearTimeout(timer);
-  }, [pronto, desligado, rotaOculta, atual, pathname, mensagens, mostrar]);
+    return () => {
+      cancelado = true;
+      controle.abort();
+      window.clearTimeout(timer);
+    };
+  }, [pronto, desligado, rotaOculta, atual, pathname, contexto, mostrar]);
 
   /* ── 4. Some sozinho, a menos que ela esteja lendo ──────────────────── */
   useEffect(() => {
@@ -198,7 +280,7 @@ export function Mascote({
   };
 
   const desligar = () => {
-    definirDesligado(userId, true);
+    definirDesligado(true);
     setAtual(null);
     setSaindo(false);
   };
@@ -214,8 +296,11 @@ export function Mascote({
       aria-label="Mensagem da mascote"
       className={cn(
         "no-print pointer-events-none fixed right-3 z-30 flex flex-col items-end sm:right-5 lg:bottom-6 lg:right-6",
-        // Acima da barra inferior do celular (e da área segura do iPhone).
-        "bottom-[calc(5.25rem+env(safe-area-inset-bottom))]",
+        // No painel do celular há uma barra inferior: fica acima dela (e da
+        // área segura do iPhone). Nas demais telas, junto da borda.
+        emPainel
+          ? "bottom-[calc(5.25rem+env(safe-area-inset-bottom))]"
+          : "bottom-[calc(1rem+env(safe-area-inset-bottom))]",
         saindo && styles.saida,
       )}
       onMouseEnter={() => setPausado(true)}

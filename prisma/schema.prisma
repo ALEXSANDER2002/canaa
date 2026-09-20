@@ -1,4 +1,4 @@
-// Schema do banco de dados — Canaã Delas AI
+// Schema do banco de dados — Elas IA
 //
 // PostgreSQL, servido pelo Supabase. Em desenvolvimento ele sobe em Docker
 // pela CLI do Supabase (`supabase start`, ver supabase/config.toml); em

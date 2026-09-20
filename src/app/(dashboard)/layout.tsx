@@ -39,7 +39,7 @@ export default async function DashboardLayout({
             <Logo withText={false} />
           </div>
           <div className="hidden items-center gap-2 text-xs font-semibold text-muted lg:flex">
-            <span>Canaã Delas</span>
+            <span>Elas IA</span>
             <span className="text-line">/</span>
             <span className="text-ink">Seu espaço</span>
           </div>

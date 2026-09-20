@@ -30,8 +30,8 @@ const karla = Karla({
 
 export const metadata: Metadata = {
   title: {
-    default: "Canaã Delas AI — Saúde feminina inteligente",
-    template: "%s · Canaã Delas AI",
+    default: "Elas IA — Saúde feminina inteligente",
+    template: "%s · Elas IA",
   },
   description:
     "Plataforma inteligente de saúde feminina para Canaã dos Carajás: ciclo menstrual, gestação, bem-estar emocional e lembretes de exames, com orientação personalizada por IA.",
@@ -43,9 +43,9 @@ export const metadata: Metadata = {
     "bem-estar",
     "Canaã dos Carajás",
   ],
-  authors: [{ name: "Canaã Delas AI" }],
+  authors: [{ name: "Elas IA" }],
   openGraph: {
-    title: "Canaã Delas AI",
+    title: "Elas IA",
     description:
       "Tecnologia que cuida, conecta e transforma a vida das mulheres.",
     locale: "pt_BR",

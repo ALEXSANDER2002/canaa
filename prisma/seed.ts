@@ -229,7 +229,7 @@ async function main() {
   });
 
   const equipeOrg = await db.organization.create({
-    data: { name: "Equipe Canaã Delas", kind: "parceiro" },
+    data: { name: "Equipe Elas IA", kind: "parceiro" },
   });
 
   // O parceiro de demonstração tem organização própria de propósito. Se ele
@@ -247,7 +247,7 @@ async function main() {
     organizationId: string | null;
   }[] = [
     {
-      name: "Equipe Canaã Delas",
+      name: "Equipe Elas IA",
       email: "equipe@example.com",
       role: "equipe",
       organizationId: equipeOrg.id,

@@ -78,7 +78,7 @@ export default async function RelatorioPage() {
       <div className="mx-auto max-w-2xl space-y-5">
         {/* Cabeçalho do relatório */}
         <div className="hidden items-center justify-between print:flex">
-          <span className="font-display text-xl font-semibold">Canaã Delas</span>
+          <span className="font-display text-xl font-semibold">Elas IA</span>
           <span className="text-sm text-muted">
             Relatório · {formatDate(new Date())}
           </span>

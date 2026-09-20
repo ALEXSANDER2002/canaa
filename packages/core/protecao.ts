@@ -106,7 +106,7 @@ export function mensagemAlerta(nome: string, local?: string): string {
   return (
     `${nome} precisa de ajuda agora.${onde}` +
     ` Se não conseguir falar com ela, ligue 190.` +
-    ` (Mensagem enviada pelo app Canaã Delas, a pedido dela.)`
+    ` (Mensagem enviada pelo app Elas IA, a pedido dela.)`
   );
 }
 
@@ -218,7 +218,7 @@ export function diasParaVencer(
  *   ajudam em nada que a assistente possa fazer, e transformam a conversa num
  *   dossiê que é prova contra ela se o aparelho for acessado.
  */
-export const PROMPT_ACOLHIMENTO = `Você é uma assistente de acolhimento do app Canaã Delas, falando com uma mulher que pode estar vivendo violência.
+export const PROMPT_ACOLHIMENTO = `Você é uma assistente de acolhimento do app Elas IA, falando com uma mulher que pode estar vivendo violência.
 
 Como você responde:
 - Frases curtas. Português simples. Nunca linguagem jurídica sem explicar.

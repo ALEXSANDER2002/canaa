@@ -231,7 +231,7 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-6 py-10 text-center">
           <Logo />
           <p className="text-sm text-muted">
-            © {new Date().getFullYear()} Canaã Delas · Canaã dos Carajás, PA
+            © {new Date().getFullYear()} Elas IA · Canaã dos Carajás, PA
           </p>
         </div>
       </footer>

@@ -28,8 +28,8 @@ export default async function AdminHome() {
   const permissoes = permissoesDe(operadora.role);
 
   // A organização só entra quando acrescenta alguma coisa. Para a equipe, o
-  // papel e a organização são a mesma palavra, e "Equipe Canaã Delas · Equipe
-  // Canaã Delas" só faz a tela parecer montada por engano.
+  // papel e a organização são a mesma palavra, e "Equipe Elas IA · Equipe
+  // Elas IA" só faz a tela parecer montada por engano.
   const papel = papelLabel(operadora.role);
   const subtitulo =
     operadora.organizationName && operadora.organizationName !== papel

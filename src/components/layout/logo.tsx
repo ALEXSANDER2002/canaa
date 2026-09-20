@@ -14,7 +14,7 @@ export function Logo({
       <BrandMark className="h-7 w-7 text-plum-700" />
       {withText && (
         <span className="font-display text-xl font-semibold tracking-[-0.01em] text-ink">
-          Canaã <span className="italic text-plum-700">Delas</span>
+          Elas <span className="italic text-plum-700">IA</span>
         </span>
       )}
     </span>

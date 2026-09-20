@@ -37,7 +37,7 @@ export const PAPEIS = [
   },
   {
     value: "equipe",
-    label: "Equipe Canaã Delas",
+    label: "Equipe Elas IA",
     descricao: "Administração completa, incluindo promover e revogar papéis.",
   },
 ] as const;

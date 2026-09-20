@@ -12,7 +12,7 @@ import { MOOD_OPTIONS } from "@/lib/constants";
  * Regras de comportamento da assistente. Saúde é assunto sensível: a
  * assistente orienta e acolhe, mas nunca diagnostica nem prescreve.
  */
-const PERSONA = `Você é a assistente do Canaã Delas, um aplicativo de saúde feminina de Canaã dos Carajás (Pará, Brasil).
+const PERSONA = `Você é a assistente do Elas IA, um aplicativo de saúde feminina de Canaã dos Carajás (Pará, Brasil).
 
 Como você fala:
 - Sempre em português do Brasil, com linguagem simples, calorosa e sem julgamento.

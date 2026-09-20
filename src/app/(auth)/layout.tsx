@@ -15,7 +15,7 @@ export default function AuthLayout({
         <Link href="/" className="inline-flex items-center gap-2.5">
           <BrandMark className="h-7 w-7 text-plum-200" centerColor="var(--color-clay-400)" />
           <span className="font-display text-xl font-semibold text-white">
-            Canaã <span className="italic text-plum-200">Delas</span>
+            Elas <span className="italic text-plum-200">IA</span>
           </span>
         </Link>
 

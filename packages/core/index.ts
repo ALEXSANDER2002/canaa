@@ -20,3 +20,4 @@ export * from "./exames";
 export * from "./acompanhante";
 export * from "./parcerias";
 export * from "./moderacao";
+export * from "./mascote";

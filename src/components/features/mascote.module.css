@@ -1,0 +1,229 @@
+/*
+ * Animações do mascote.
+ *
+ * Só movimento vive aqui — cor, tamanho e layout ficam em classes Tailwind no
+ * componente, para os tokens do design system continuarem sendo a única fonte.
+ *
+ * Quem pediu "reduzir movimento" no sistema já é atendido pela regra global de
+ * globals.css (duração ~0 e uma única iteração): o mascote aparece parado, e o
+ * texto sai inteiro de uma vez (ver `useDigitacao`).
+ */
+
+/* ── Chegada e saída ─────────────────────────────────────────────────── */
+
+.mascote {
+  transform-origin: 50% 100%;
+  animation: entrar 0.8s ease-out both;
+}
+
+@keyframes entrar {
+  0% {
+    transform: translateY(130%) scale(0.7);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-8%) scale(1.06);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(2%) scale(0.98);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.saida {
+  animation: sair 0.38s cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+
+@keyframes sair {
+  to {
+    transform: translateY(24px) scale(0.85);
+    opacity: 0;
+  }
+}
+
+/* ── Balão ───────────────────────────────────────────────────────────── */
+
+.balao {
+  transform-origin: 90% 100%;
+  animation: balaoEntra 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s both;
+}
+
+@keyframes balaoEntra {
+  from {
+    transform: scale(0.6) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Cursor enquanto o texto é "digitado". */
+.cursor::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: currentColor;
+  animation: piscarCursor 0.8s steps(1) infinite;
+}
+
+@keyframes piscarCursor {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ── Partes do mascote (dentro do SVG) ───────────────────────────────── */
+
+/* Respiração: sobe um fio e afina, como quem inspira. */
+.corpo {
+  transform-box: view-box;
+  transform-origin: 50px 94px;
+  animation: respirar 3.4s ease-in-out infinite;
+}
+
+@keyframes respirar {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-1.5px) scale(0.99, 1.02);
+  }
+}
+
+/* Comemoração: pulinhos com achatamento na aterrissagem. Vem depois de
+   `.corpo` de propósito — quando as duas classes estão juntas, esta vence. */
+.pulo {
+  animation: pular 0.62s ease-in-out 4;
+}
+
+@keyframes pular {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.04, 0.94);
+  }
+  45% {
+    transform: translateY(-13px) scale(0.97, 1.04);
+  }
+}
+
+/* Pétalas balançando de leve, como com vento. */
+.petalas {
+  transform-box: view-box;
+  transform-origin: 50px 42px;
+  animation: balancar 4.2s ease-in-out infinite;
+}
+
+@keyframes balancar {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+/* Piscada: fechada por um instante a cada ~5 s. */
+.olhos {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: piscar 5s infinite;
+}
+
+@keyframes piscar {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.08);
+  }
+}
+
+/* Boca abrindo e fechando enquanto o texto é digitado. */
+.boca {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: falar 0.34s ease-in-out infinite;
+}
+
+@keyframes falar {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* Aceno da folha: duas vezes, logo depois de chegar. */
+.folhaDir {
+  transform-box: view-box;
+  transform-origin: 50px 88px;
+  animation: acenar 1.2s ease-in-out 0.5s 2 both;
+}
+
+@keyframes acenar {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-28deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+  75% {
+    transform: rotate(-28deg);
+  }
+}
+
+/* Faíscas da comemoração. */
+.brilho {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: brilhar 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes brilhar {
+  from {
+    transform: scale(0.35) rotate(0deg);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1.1) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+/* Sombra no chão acompanhando a respiração. */
+.sombra {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sombraRespira 3.4s ease-in-out infinite;
+}
+
+@keyframes sombraRespira {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(0.94);
+    opacity: 0.85;
+  }
+}

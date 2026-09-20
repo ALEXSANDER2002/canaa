@@ -1,8 +1,10 @@
 // Estado do mascote — só neste aparelho, nunca no servidor.
 //
-// Guarda: se ela desligou, quais mensagens já foram mostradas (por HASH do id,
-// ver `chaveDaMensagem`), quantas apareceram hoje e quando foi a última.
-// Nenhuma leitura ou escrita passa pelo banco — nem contagem, nem métrica.
+// É por APARELHO, não por conta: o mascote também fala com quem ainda não
+// entrou, e essa pessoa não tem um id para chaveá-lo. Guarda: se foi desligado,
+// quais mensagens já foram mostradas (por HASH do id, ver `chaveDaMensagem`),
+// quantas apareceram hoje e quando foi a última. Nenhuma leitura ou escrita
+// passa pelo banco — nem contagem, nem métrica.
 //
 // Todo acesso é protegido por try/catch: navegação privativa e armazenamento
 // bloqueado lançam exceção, e o mascote é um extra que não pode quebrar a página.
@@ -25,7 +27,8 @@ export const EVENTO_MASCOTE = "canaa:mascote";
 /** Um pouco mais que a maior repetição (30 dias): depois disso, é lixo. */
 const RETENCAO_MS = 35 * 24 * 60 * 60 * 1000;
 
-const chave = (userId: string) => `canaa:mascote:v1:${userId}`;
+/** v2: a v1 era por conta (`canaa:mascote:v1:<id>`) e fica esquecida no navegador. */
+const CHAVE = "canaa:mascote:v2";
 
 export function diaLocal(ms: number): string {
   const d = new Date(ms);
@@ -36,11 +39,11 @@ function vazio(): EstadoMascote {
   return { desligado: false, vistas: {}, dia: "", hoje: 0, ultima: 0 };
 }
 
-export function lerEstado(userId: string): EstadoMascote {
+export function lerEstado(): EstadoMascote {
   const estado = vazio();
 
   try {
-    const bruto = window.localStorage.getItem(chave(userId));
+    const bruto = window.localStorage.getItem(CHAVE);
     if (bruto) {
       const dados: unknown = JSON.parse(bruto);
       if (dados && typeof dados === "object") {
@@ -74,18 +77,18 @@ export function lerEstado(userId: string): EstadoMascote {
   return estado;
 }
 
-export function salvarEstado(userId: string, estado: EstadoMascote): void {
+export function salvarEstado(estado: EstadoMascote): void {
   try {
-    window.localStorage.setItem(chave(userId), JSON.stringify(estado));
+    window.localStorage.setItem(CHAVE, JSON.stringify(estado));
   } catch {
     // Sem armazenamento, o mascote só perde a memória do que já mostrou.
   }
 }
 
 /** Liga ou desliga o mascote neste aparelho e avisa a aba atual. */
-export function definirDesligado(userId: string, desligado: boolean): void {
-  const estado = lerEstado(userId);
+export function definirDesligado(desligado: boolean): void {
+  const estado = lerEstado();
   estado.desligado = desligado;
-  salvarEstado(userId, estado);
+  salvarEstado(estado);
   window.dispatchEvent(new Event(EVENTO_MASCOTE));
 }

@@ -1,72 +1,61 @@
-import type { Metadata, Viewport } from "next";
-import { Fraunces, Karla } from "next/font/google";
-import "./globals.css";
+import { redirect } from "next/navigation";
 
-/**
- * Duas famílias, cada uma com um trabalho.
- *
- * Antes o app inteiro — título e texto corrido — usava a mesma geométrica em
- * pesos diferentes, que é como a maioria dos gerador automático de site
- * resolve tipografia: rápido, mas sem voz nenhuma. Fraunces é uma serifada
- * quente e um pouco torta nas curvas — o contraponto editorial que dá à marca
- * uma cara que não é a de qualquer outro app de saúde. Karla carrega o texto
- * corrido: humanista, boa altura-x, sem ser mais uma das "sans" que todo
- * gerador de UI escolhe por padrão.
- */
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-fraunces",
-});
+import { requireUser } from "@/lib/session";
+import { db } from "@/lib/db";
+import { ehAdministrativo } from "@core/papeis";
+import { Sidebar, MobileNav, MobileSectionNav } from "@/components/layout/sidebar";
+import { UserMenu } from "@/components/layout/user-menu";
+import { Logo } from "@/components/layout/logo";
 
-const karla = Karla({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-karla",
-});
-
-export const metadata: Metadata = {
-  title: {
-    default: "Elas IA — Saúde feminina inteligente",
-    template: "%s · Elas IA",
-  },
-  description:
-    "Plataforma inteligente de saúde feminina para Canaã dos Carajás: ciclo menstrual, gestação, bem-estar emocional e lembretes de exames, com orientação personalizada por IA.",
-  keywords: [
-    "saúde feminina",
-    "femtech",
-    "ciclo menstrual",
-    "gestação",
-    "bem-estar",
-    "Canaã dos Carajás",
-  ],
-  authors: [{ name: "Elas IA" }],
-  openGraph: {
-    title: "Elas IA",
-    description:
-      "Tecnologia que cuida, conecta e transforma a vida das mulheres.",
-    locale: "pt_BR",
-    type: "website",
-  },
-};
-
-export const viewport: Viewport = {
-  // Mesmo coral do botão primário (plum-700) — a barra do sistema precisa
-  // soar como a marca, não como uma aproximação.
-  themeColor: "#d1354a",
-  width: "device-width",
-  initialScale: 1,
-};
-
-export default function RootLayout({
+export default async function DashboardLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await requireUser();
+
+  const record = await db.user.findUnique({
+    where: { id: user.id },
+    select: { onboardedAt: true, role: true },
+  });
+  // Sessão aponta para um usuário inexistente (ex.: banco recriado) → logout.
+  if (!record) redirect("/api/logout");
+  // Conta administrativa vai para /admin — o espelho do que `requireAdmin`
+  // faz na direção oposta. Sem isto, a moderadora que digitasse /painel caía
+  // no espaço pessoal: "Comece pelo seu ciclo", lembrete de preventivo, humor
+  // do dia. Nada ali é o trabalho dela, e conta institucional é usada por mais
+  // de uma pessoa — registro íntimo guardado nela vaza para a próxima.
+  if (ehAdministrativo(record.role)) redirect("/admin");
+  // Gate de onboarding: quem ainda não concluiu vai para /comecar.
+  if (!record.onboardedAt) redirect("/comecar");
+
   return (
-    <html lang="pt-BR" className={`${fraunces.variable} ${karla.variable}`}>
-      <body>{children}</body>
-    </html>
+    <div className="flex min-h-screen bg-canvas">
+      <Sidebar />
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-line/70 bg-canvas/90 px-5 py-3 backdrop-blur-md sm:px-8">
+          <div className="lg:hidden">
+            <Logo withText={false} />
+          </div>
+          <div className="hidden items-center gap-2 text-xs font-semibold text-muted lg:flex">
+            <span>Canaã Delas</span>
+            <span className="text-line">/</span>
+            <span className="text-ink">Seu espaço</span>
+          </div>
+          <div className="ml-auto">
+            <UserMenu name={user.name ?? "Usuária"} email={user.email ?? ""} />
+          </div>
+        </header>
+
+        <MobileSectionNav />
+
+        <main className="flex-1 px-5 py-7 pb-28 sm:px-8 lg:py-10 lg:pb-10">
+          <div className="mx-auto max-w-5xl">{children}</div>
+        </main>
+      </div>
+
+      <MobileNav />
+    </div>
   );
 }

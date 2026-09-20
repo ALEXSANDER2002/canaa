@@ -14,14 +14,15 @@ import {
  *
  * A escolha vale para ESTE aparelho: fica no armazenamento do navegador, não
  * no banco. É de propósito — a preferência não vira um dado a mais sobre ela,
- * e quem usa o mesmo celular e o computador decide separadamente.
+ * e quem usa o mesmo celular e o computador decide separadamente. Vale também
+ * para o mascote das telas públicas, antes do login.
  */
-export function MascoteSwitch({ userId }: { userId: string }) {
+export function MascoteSwitch() {
   // `null` até ler o armazenamento: evita piscar "ligado" e depois "desligado".
   const [ligado, setLigado] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const ler = () => setLigado(!lerEstado(userId).desligado);
+    const ler = () => setLigado(!lerEstado().desligado);
     ler();
     window.addEventListener(EVENTO_MASCOTE, ler);
     window.addEventListener("storage", ler);
@@ -29,7 +30,7 @@ export function MascoteSwitch({ userId }: { userId: string }) {
       window.removeEventListener(EVENTO_MASCOTE, ler);
       window.removeEventListener("storage", ler);
     };
-  }, [userId]);
+  }, []);
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -48,7 +49,7 @@ export function MascoteSwitch({ userId }: { userId: string }) {
         aria-checked={ligado === true}
         aria-labelledby="mascote-rotulo"
         disabled={ligado === null}
-        onClick={() => definirDesligado(userId, ligado === true)}
+        onClick={() => definirDesligado(ligado === true)}
         className={cn(
           "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum-400 focus-visible:ring-offset-2 disabled:opacity-50",
           ligado ? "bg-plum-700" : "bg-line",

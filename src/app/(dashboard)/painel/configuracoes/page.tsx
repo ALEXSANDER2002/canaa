@@ -44,10 +44,10 @@ export default async function ConfiguracoesPage() {
           <CardTitle>Mascote</CardTitle>
           <CardDescription>
             Aparece de vez em quando no canto da tela com avisos da cidade,
-            dicas de saúde e lembretes do app. Nunca aparece na Proteção.
+            dicas de saúde e lembretes do app — também nas telas de antes do login. Nunca aparece na Proteção.
           </CardDescription>
           <div className="mt-4">
-            <MascoteSwitch userId={sessionUser.id} />
+            <MascoteSwitch />
           </div>
         </Card>
 

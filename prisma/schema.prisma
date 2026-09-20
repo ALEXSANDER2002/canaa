@@ -18,8 +18,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   // Migração e introspecção não podem passar por pooler de transação: o
   // pooler não sustenta os comandos de DDL longos nem o advisory lock que o
   // Prisma usa para não deixar duas migrações rodarem juntas. Em produção,
@@ -389,6 +389,8 @@ model SosEvent {
   /// "ligacao" | "rede" — `patrulha` não existe enquanto não houver plantão.
   camada    String
   bairro    String?
+  /// Identifica carga sintética para que o seed nunca apague eventos reais.
+  demo      Boolean  @default(false)
   createdAt DateTime @default(now())
 
   @@index([createdAt])

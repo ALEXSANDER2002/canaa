@@ -17,7 +17,6 @@ import bcrypt from "bcryptjs";
 
 import { MOOD_OPTIONS } from "../packages/core/constants";
 import { COMMUNITY_CATEGORIES } from "../packages/core/community";
-import { CORTE_AGREGADO } from "../packages/core/papeis";
 
 const db = new PrismaClient();
 
@@ -76,7 +75,7 @@ async function main() {
   const apagadas = await db.user.deleteMany({
     where: { email: { endsWith: DOMINIO_DEMO } },
   });
-  await db.sosEvent.deleteMany();
+  await db.sosEvent.deleteMany({ where: { demo: true } });
   await db.supportService.deleteMany({ where: { name: { startsWith: MARCA } } });
   await db.healthUnit.deleteMany({ where: { nome: { startsWith: MARCA } } });
   if (apagadas.count) console.log(`  ↺ ${apagadas.count} usuárias de demonstração anteriores removidas`);
@@ -84,44 +83,42 @@ async function main() {
   /* ═══════════════════ as usuárias de demonstração ═══════════════════ */
 
   const senha = await bcrypt.hash("senha1234", 10);
-  const QUANTAS = 42;
+  const QUANTAS = 120;
 
-  const demo = await Promise.all(
-    Array.from({ length: QUANTAS }, (_, i) => {
+  const contasDemo = Array.from({ length: QUANTAS }, (_, i) => {
       const n = String(i + 1).padStart(2, "0");
       // Nascimento espalhado entre 18 e 64 anos: a tela de exames escolhe a
       // faixa por idade, e uma coorte toda da mesma idade esconderia isso.
       const idade = inteiro(18, 64);
-      return db.user.create({
-        data: {
-          name: `${MARCA} — usuária ${n}`,
-          email: `usuaria${n}${DOMINIO_DEMO}`,
-          passwordHash: senha,
-          role: "usuaria",
-          birthDate: new Date(new Date().getFullYear() - idade, inteiro(0, 11), inteiro(1, 28)),
-          goal: escolher(["acompanhar", "engravidar", "evitar"]),
-          onboardedAt: diasAtras(inteiro(30, 300)),
-        },
-        select: { id: true },
-      });
-    }),
-  );
+      return {
+        name: `${MARCA} — usuária ${n}`,
+        email: `usuaria${n}${DOMINIO_DEMO}`,
+        passwordHash: senha,
+        role: "usuaria",
+        birthDate: new Date(new Date().getFullYear() - idade, inteiro(0, 11), inteiro(1, 28)),
+        goal: escolher(["acompanhar", "engravidar", "evitar"]),
+        onboardedAt: diasAtras(inteiro(30, 300)),
+      };
+    });
+  await db.user.createMany({ data: contasDemo });
+  const demo = await db.user.findMany({
+    where: { email: { endsWith: DOMINIO_DEMO } },
+    select: { id: true },
+  });
   console.log(`  ✓ ${demo.length} usuárias de demonstração`);
 
   /* ═══════════ procura por exame — o gráfico da Prefeitura ═══════════
 
-     Os valores por mês são escritos à mão, e não sorteados, porque este
-     gráfico existe para mostrar DUAS coisas: um mês cheio e um mês abaixo do
-     corte de agregação. Junho fica de propósito sob o corte — é ali que a
-     barra vira hachura e o número vira "—". Com números aleatórios, a chance
-     de cair um mês assim é sorte, e demonstração não se apoia em sorte. */
+     Os valores por mês são escritos à mão, e não sorteados, para produzir uma
+     série consistente e legível em apresentações. Todos ficam acima do corte
+     de privacidade; a regra de supressão continua testada pelos testes do core. */
   const porMes = [
-    { mesesAtras: 5, quantos: 24 },
-    { mesesAtras: 4, quantos: 31 },
-    { mesesAtras: 3, quantos: CORTE_AGREGADO - 2 }, // abaixo do corte: hachura
-    { mesesAtras: 2, quantos: 27 },
-    { mesesAtras: 1, quantos: 38 },
-    { mesesAtras: 0, quantos: 22 },
+    { mesesAtras: 5, quantos: 46 },
+    { mesesAtras: 4, quantos: 58 },
+    { mesesAtras: 3, quantos: 52 },
+    { mesesAtras: 2, quantos: 67 },
+    { mesesAtras: 1, quantos: 81 },
+    { mesesAtras: 0, quantos: 74 },
   ];
 
   const lembretes = porMes.flatMap(({ mesesAtras, quantos }) =>
@@ -146,6 +143,30 @@ async function main() {
   await db.reminder.createMany({ data: lembretes });
   console.log(`  ✓ ${lembretes.length} lembretes de exame em 6 meses`);
 
+  /* ═══════════ registros de cuidado — série municipal consistente ═══════════
+
+     Cada usuária registra em alguns dias, não em todos. O volume produz uma
+     série legível para decisão pública sem transformar o piloto em uma rotina
+     artificialmente perfeita. */
+  const diariosMunicipais = [];
+  for (let d = 179; d >= 0; d--) {
+    for (const usuaria of demo) {
+      if (rnd() > 0.34) continue;
+      const data = diasAtras(d);
+      diariosMunicipais.push({
+        userId: usuaria.id,
+        date: data,
+        createdAt: data,
+        energy: inteiro(1, 5),
+        sleepHours: Math.round((5 + rnd() * 4) * 2) / 2,
+        pain: inteiro(0, 5),
+        symptoms: rnd() < 0.35 ? escolher(["cólica", "dor de cabeça", "inchaço", "cansaço"]) : null,
+      });
+    }
+  }
+  await db.dailyLog.createMany({ data: diariosMunicipais });
+  console.log(`  ✓ ${diariosMunicipais.length} registros de cuidado em 6 meses`);
+
   /* ═══════════ acionamentos de ajuda — contagem agregada ═══════════
 
      `SosEvent` não tem `userId` nem localização mais fina que o bairro. Aqui
@@ -154,13 +175,17 @@ async function main() {
      corrente fica acima, senão a tela mostraria "—" e ninguém veria o
      indicador funcionando. */
   const sos = [
-    { mesesAtras: 0, quantos: CORTE_AGREGADO + 3 },
-    { mesesAtras: 1, quantos: 26 },
-    { mesesAtras: 2, quantos: 19 },
+    { mesesAtras: 5, quantos: 24 },
+    { mesesAtras: 4, quantos: 29 },
+    { mesesAtras: 3, quantos: 27 },
+    { mesesAtras: 2, quantos: 34 },
+    { mesesAtras: 1, quantos: 31 },
+    { mesesAtras: 0, quantos: 28 },
   ].flatMap(({ mesesAtras, quantos }) =>
     Array.from({ length: quantos }, () => ({
       camada: escolher(["ligacao", "rede"]),
       bairro: escolher(BAIRROS),
+      demo: true,
       createdAt: dentroDoMes(mesesAtras),
     })),
   );
@@ -169,8 +194,8 @@ async function main() {
 
   /* ═══════════ fila de moderação ═══════════ */
 
-  const relatos = Array.from({ length: 34 }, (_, i) => {
-    const denuncias = i < 9 ? inteiro(3, 11) : inteiro(0, 2);
+  const relatos = Array.from({ length: 96 }, (_, i) => {
+    const denuncias = i < 14 ? inteiro(3, 11) : inteiro(0, 2);
     return {
       userId: escolher(demo).id,
       category: escolher(COMMUNITY_CATEGORIES).value,
@@ -216,19 +241,25 @@ async function main() {
 
   /* ═══════════ unidades de saúde ═══════════
 
-     Três unidades a mais, em bairros que ainda não apareciam, para o gráfico
-     "Unidades por bairro" ter mais de duas barras. Nenhuma delas oferece
-     mamografia: no seed só uma unidade oferecia, e mantendo assim o gráfico
-     de cobertura mostra a diferença entre um serviço concentrado e um
-     serviço espalhado. */
+     Uma malha territorial ampla o bastante para o mapa de calor comunicar
+     concentração, vazios e corredores de cobertura. Os dados continuam
+     explicitamente marcados como demonstração. */
   await db.healthUnit.createMany({
     data: [
       { nome: `${MARCA} — UBS Vale Verde`, tipo: "ubs", bairro: "Vale Verde", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 17h", servicos: "ginecologia,prenatal,preventivo,vacinacao", latitude: -6.488, longitude: -49.872 },
       { nome: `${MARCA} — UBS Planalto`, tipo: "ubs", bairro: "Planalto", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 17h", servicos: "ginecologia,prenatal,teste_rapido", latitude: -6.511, longitude: -49.892 },
       { nome: `${MARCA} — Posto Zona Rural`, tipo: "ubs", bairro: "Zona rural", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "quartas, 8h às 14h", servicos: "ginecologia,vacinacao", latitude: -6.478, longitude: -49.902 },
+      { nome: `${MARCA} — UBS Jardim Canaã`, tipo: "ubs", bairro: "Jardim Canaã", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 17h", servicos: "ginecologia,prenatal,preventivo,planejamento,vacinacao", latitude: -6.486, longitude: -49.886 },
+      { nome: `${MARCA} — UBS Bela Vista`, tipo: "ubs", bairro: "Bela Vista", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 17h", servicos: "ginecologia,preventivo,teste_rapido,vacinacao", latitude: -6.518, longitude: -49.878 },
+      { nome: `${MARCA} — Centro de Saúde Novo Brasil`, tipo: "ubs", bairro: "Novo Brasil", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 19h", servicos: "ginecologia,prenatal,planejamento,teste_rapido", latitude: -6.493, longitude: -49.858 },
+      { nome: `${MARCA} — Clínica da Mulher`, tipo: "policlinica", bairro: "Centro", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sáb, 7h às 18h", servicos: "ginecologia,preventivo,mamografia,psicologia,planejamento", latitude: -6.501, longitude: -49.881 },
+      { nome: `${MARCA} — Unidade Móvel Norte`, tipo: "ubs", bairro: "Parque dos Carajás", endereco: "Ponto itinerante de demonstração", telefone: "(00) 0000-0000", horario: "agenda itinerante", servicos: "preventivo,vacinacao,teste_rapido", latitude: -6.466, longitude: -49.873 },
+      { nome: `${MARCA} — UBS Maranhenses`, tipo: "ubs", bairro: "Maranhenses", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 7h às 17h", servicos: "ginecologia,prenatal,preventivo,vacinacao", latitude: -6.525, longitude: -49.866 },
+      { nome: `${MARCA} — Centro Psicossocial Sul`, tipo: "caps", bairro: "Cidade Nova", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "seg a sex, 8h às 18h", servicos: "psicologia,planejamento", latitude: -6.516, longitude: -49.904 },
+      { nome: `${MARCA} — Pronto Atendimento Leste`, tipo: "hospital", bairro: "Ouro Preto", endereco: "Endereço de demonstração", telefone: "(00) 0000-0000", horario: "24 horas", servicos: "emergencia,ginecologia,teste_rapido", latitude: -6.496, longitude: -49.846 },
     ],
   });
-  console.log("  ✓ 3 unidades de saúde em bairros novos");
+  console.log("  ✓ 11 unidades de saúde distribuídas pelo território");
 
   /* ═══════════ a história da Maria — os gráficos do aplicativo ═══════════
 

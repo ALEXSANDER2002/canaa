@@ -31,9 +31,12 @@ export function MapaCalorUnidades({ pontos }: { pontos: PontoCobertura[] }) {
     mapboxgl.accessToken = TOKEN;
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: "mapbox://styles/mapbox/light-v11",
+      style: "mapbox://styles/mapbox/satellite-streets-v12",
       center: [-49.8797, -6.4988],
       zoom: 12,
+      minZoom: 10,
+      maxZoom: 17,
+      antialias: true,
       cooperativeGestures: true,
     });
 
@@ -75,7 +78,7 @@ export function MapaCalorUnidades({ pontos }: { pontos: PontoCobertura[] }) {
             ["get", "servicos"],
             0,
             0,
-            7,
+            9,
             1,
           ],
           "heatmap-intensity": [
@@ -83,27 +86,27 @@ export function MapaCalorUnidades({ pontos }: { pontos: PontoCobertura[] }) {
             ["linear"],
             ["zoom"],
             10,
-            0.8,
+            1.15,
             15,
-            2.4,
+            2.8,
           ],
           "heatmap-radius": [
             "interpolate",
             ["linear"],
             ["zoom"],
             10,
-            26,
+            30,
             15,
-            52,
+            58,
           ],
           "heatmap-opacity": [
             "interpolate",
             ["linear"],
             ["zoom"],
             12,
-            0.8,
+            0.9,
             16,
-            0.25,
+            0.35,
           ],
           "heatmap-color": [
             "interpolate",
@@ -111,14 +114,16 @@ export function MapaCalorUnidades({ pontos }: { pontos: PontoCobertura[] }) {
             ["heatmap-density"],
             0,
             "rgba(255,255,255,0)",
-            0.2,
-            "#eadde8",
-            0.45,
-            "#d78aa0",
-            0.7,
-            "#b62f51",
+            0.12,
+            "rgba(88, 220, 255, 0.45)",
+            0.35,
+            "rgba(65, 221, 151, 0.65)",
+            0.58,
+            "rgba(255, 219, 92, 0.82)",
+            0.78,
+            "rgba(255, 112, 72, 0.9)",
             1,
-            "#651c35",
+            "rgba(181, 24, 75, 0.98)",
           ],
         },
       });
@@ -129,11 +134,29 @@ export function MapaCalorUnidades({ pontos }: { pontos: PontoCobertura[] }) {
         source: "cobertura-unidades",
         minzoom: 12.5,
         paint: {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 12.5, 4, 16, 8],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 12.5, 4, 16, 9],
           "circle-color": "#ffffff",
-          "circle-stroke-color": "#9f2947",
-          "circle-stroke-width": 2,
+          "circle-stroke-color": "#651c35",
+          "circle-stroke-width": 2.5,
           "circle-opacity": ["interpolate", ["linear"], ["zoom"], 12.5, 0, 14, 1],
+        },
+      });
+
+      map.addLayer({
+        id: "rotulos-cobertura",
+        type: "symbol",
+        source: "cobertura-unidades",
+        minzoom: 13.5,
+        layout: {
+          "text-field": ["to-string", ["get", "servicos"]],
+          "text-size": 10,
+          "text-font": ["DIN Pro Medium", "Arial Unicode MS Bold"],
+          "text-allow-overlap": true,
+        },
+        paint: {
+          "text-color": "#651c35",
+          "text-halo-color": "#ffffff",
+          "text-halo-width": 0.5,
         },
       });
 
@@ -154,11 +177,11 @@ export function MapaCalorUnidades({ pontos }: { pontos: PontoCobertura[] }) {
           | undefined;
         if (!feature || feature.geometry.type !== "Point") return;
         const properties = feature.properties;
-        new mapboxgl.Popup({ offset: 10 })
+        new mapboxgl.Popup({ offset: 12, maxWidth: "280px" })
           .setLngLat(feature.geometry.coordinates as [number, number])
           .setHTML(
-            `<strong>${escapeHtml(properties.nome ?? "Unidade")}</strong>` +
-              `<div>${escapeHtml(properties.bairro ?? "Sem bairro")} · ${Number(properties.servicos ?? 0)} serviços</div>`,
+            `<div style="font:600 13px/1.35 system-ui;color:#241b23">${escapeHtml(properties.nome ?? "Unidade")}</div>` +
+              `<div style="margin-top:4px;font:12px/1.4 system-ui;color:#655b63">${escapeHtml(properties.bairro ?? "Sem bairro")} · ${Number(properties.servicos ?? 0)} serviços disponíveis</div>`,
           )
           .addTo(map);
       });
@@ -187,17 +210,27 @@ export function MapaCalorUnidades({ pontos }: { pontos: PontoCobertura[] }) {
 
   return (
     <div>
-      <div
-        ref={containerRef}
-        className="h-[360px] overflow-hidden rounded-[var(--radius-card)] border border-line"
-        role="img"
-        aria-label={`Mapa de calor da cobertura de ${pontos.length} unidades de saúde`}
-      />
+      <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-line bg-[#101820] shadow-sm">
+        <div
+          ref={containerRef}
+          className="h-[440px]"
+          role="img"
+          aria-label={`Mapa de calor da cobertura de ${pontos.length} unidades de saúde sobre imagem de satélite`}
+        />
+        <div className="pointer-events-none absolute left-3 top-3 rounded-xl border border-white/20 bg-[#151019]/85 px-3 py-2 text-white shadow-lg backdrop-blur-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/65">
+            Cobertura territorial
+          </p>
+          <p className="mt-0.5 text-sm font-semibold">
+            {pontos.length} unidades mapeadas
+          </p>
+        </div>
+      </div>
       <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted">
         <span>Menor cobertura</span>
-        <span className="h-2.5 w-28 rounded-full bg-gradient-to-r from-[#eadde8] via-[#d78aa0] to-[#651c35]" />
+        <span className="h-2.5 w-32 rounded-full bg-gradient-to-r from-[#58dcff] via-[#ffdb5c] to-[#b5184b]" />
         <span>Maior concentração de serviços</span>
-        <span className="sm:ml-auto">Aproxime o mapa para identificar as unidades.</span>
+        <span className="sm:ml-auto">Imagem de satélite · aproxime para identificar cada unidade.</span>
       </div>
     </div>
   );
